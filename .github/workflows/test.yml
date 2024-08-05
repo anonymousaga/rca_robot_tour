@@ -1,0 +1,35 @@
+name: Publisdsfkh packages on release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+    build_linux64:
+        name: Build ubuntu binary
+        runs-on: ubuntu-latest
+        defaults:
+          run:
+            shell: bash
+        steps:
+          - uses: actions/checkout@v4
+    
+          - uses: actions/setup-python@v5
+            with:
+              cache: 'pip'
+              python-version: '3.12'
+    
+          - name: Install dependencies
+            run: |
+              python -m pip install --upgrade pip
+              pip install --upgrade cx_Freeze pyperclip
+    
+          - name: Freeze app
+            run: cxfreeze bdist_deb
+            
+          - name: Upload to release
+            run: gh release upload ${{github.event.release.tag_name}} build/*.deb
+            env:
+              GITHUB_TOKEN: ${{ github.TOKEN }}
