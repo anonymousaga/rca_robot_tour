@@ -1,0 +1,23 @@
+[project]
+name = "rca"
+version = "1.0.2"
+description = "Robot Coaching Assistant for Science Olympiad"
+
+[tool.cxfreeze]
+executables = [
+    {script = "rca.py", base = "gui", icon="icon", target_name='Robot Coaching Assistant', shortcut_name="Robot Coaching Assistant", shortcut_dir="ProgramMenuFolder"}
+]
+
+[tool.cxfreeze.build_exe]
+include_files=['config.json','compileFile.py','root.conf','root2.conf']
+
+[tool.cxfreeze.bdist_mac]
+bundle_name="Robot Coaching Assistant"
+
+[tool.cxfreeze.bdist_dmg]
+volume_label="Robot Coaching Assistant Installer"
+applications_shortcut=true
+
+[tool.cxfreeze.bdist_msi]
+install_icon='icon.ico'
+target_name="RobotCoachingAssistant"
