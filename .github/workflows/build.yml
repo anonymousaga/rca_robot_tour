@@ -65,7 +65,7 @@ jobs:
                   GITHUB_TOKEN: ${{ github.TOKEN }}
     build_macx64:
         name: Build mac x64 binary
-        runs-on: macos-latest-large
+        runs-on: macos-13
         defaults:
           run:
             shell: bash
