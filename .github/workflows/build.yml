@@ -2,7 +2,7 @@ name: Publish packages on release
 
 on:
   release:
-    types: [created]
+    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -59,8 +59,8 @@ jobs:
             
           - name: Upload to release
             run: |
-                mv 'build/Robot Coaching Assistant Installer.dmg' 'build/Robot Coaching Assistant Installer arm64.dmg'
-                gh release upload ${{github.event.release.tag_name}} 'build/Robot Coaching Assistant Installer arm64.dmg'
+                mv 'build/Robot Coaching Assistant Installer.dmg' 'build/RobotCoachingAssistantInstaller_arm64.dmg'
+                gh release upload ${{github.event.release.tag_name}} 'build/RobotCoachingAssistantInstaller_arm64.dmg'
             env:
                   GITHUB_TOKEN: ${{ github.TOKEN }}
     build_macx64:
@@ -87,8 +87,8 @@ jobs:
             
           - name: Upload to release
             run: |
-                mv 'build/Robot Coaching Assistant Installer.dmg' 'build/Robot Coaching Assistant Installer x86_64.dmg'
-                gh release upload ${{github.event.release.tag_name}} 'build/Robot Coaching Assistant Installer x86_64.dmg'
+                mv 'build/Robot Coaching Assistant Installer.dmg' 'build/RobotCoachingAssistantInstaller_x86_64.dmg'
+                gh release upload ${{github.event.release.tag_name}} 'build/RobotCoachingAssistantInstaller_x86_64.dmg'
             env:
               GITHUB_TOKEN: ${{ github.TOKEN }}
 
