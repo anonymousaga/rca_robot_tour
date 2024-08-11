@@ -19,6 +19,6 @@ volume_label="Robot Coaching Assistant Installer"
 applications_shortcut=true
 
 [tool.cxfreeze.bdist_msi]
-upgrade_code='5BD4C30E-5971-3BAA-8787-05D1BAD59FE8' #import uuid; str(uuid.uuid3(uuid.NAMESPACE_DNS, 'rca.anonymousaga.git')).upper()
+upgrade_code='{5BD4C30E-5971-3BAA-8787-05D1BAD59FE8}' #import uuid; str(uuid.uuid3(uuid.NAMESPACE_DNS, 'rca.anonymousaga.git')).upper()
 install_icon='icon.ico'
 target_name="Robot Coaching Assistant"
