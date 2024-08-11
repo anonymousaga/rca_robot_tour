@@ -21,4 +21,4 @@ applications_shortcut=true
 
 [tool.cxfreeze.bdist_msi]
 install_icon='icon.ico'
-target_name="RobotCoachingAssistant"
+target_name="Robot Coaching Assistant"

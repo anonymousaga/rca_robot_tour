@@ -14,10 +14,12 @@ from tkinter import *
 import webbrowser
 
 
-pyperclip_enable=True
-if pyperclip_enable==True:
+try:
     import pyperclip
-import toml
+    pyperclip_enable=True
+except ImportError:
+    pyperclip_enable=False
+    print("Pyperclip not installed, copy to clipboard disabled")
 
 
 
@@ -44,6 +46,15 @@ root=tk.Tk()
 
 with open(os.path.join(__location__,"config.json"), "r") as f:
     vars = json.load(f)
+try:
+    import toml
+    # Read the pyproject.toml file
+    with open(os.path.join(__location__,"pyproject.toml"), "r") as f:
+        version = toml.load(f)["project"]["version"]
+except ImportError:
+    version = "?"
+    print("TOML not installed, version number disabled")
+
 
 
 class UndoableEntry(tk.Text):
@@ -137,9 +148,7 @@ def modified_flag_changed(event=None):
 text_box = UndoableEntry(root)
 text_box.bind("<<Modified>>", modified_flag_changed)
 
-# Read the pyproject.toml file
-with open(os.path.join(__location__,"pyproject.toml"), "r") as f:
-    version = toml.load(f)["project"]["version"]
+
 
 lineWidth=2.5
 
