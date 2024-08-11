@@ -4,7 +4,7 @@ from random import randint
 import time
 import tkinter as tk
 import _thread 
-#from ast import literal_eval
+#_thread.start_new_thread(th_func, ())
 import json
 import os
 import sys
@@ -101,7 +101,10 @@ def read_commandstk():
     commands, error = compileCommands(commands)
     if error == False:
         big_red_label.config(text="")
-        root.quit()
+        try:
+            tupdate()
+        except:
+            pass
     else:
         big_red_label.config(text="Syntax Error in Commands!")
 
@@ -221,7 +224,77 @@ def open_about():
 
 
 
+def tupdate(event=None):
+    global showRobotMoving
+    global screensSizeMultiplier
+    xe=t.window_width()
+    ye=t.window_height()
+    if xe/ye > vars['grid_x']/vars['grid_y']:
+        screensSizeMultiplier = (ye/(50*vars['grid_y'])) * 0.8
+    else:
+        screensSizeMultiplier = (xe/(50*vars['grid_x'])) * 0.85
+    t.reset()
+    t.speed("fastest")
+    t.tracer(0,0)
+    if darkmode() == True:
+        t.color('white')
+        t.Screen().bgcolor('black')
+        t.pencolor('#888888')
+    else:
+        t.color('black')
+        t.Screen().bgcolor('white')  
+        t.pencolor("black")
+    t.width(1*screensSizeMultiplier)
 
+    # Draw a grid with 4 rows and 5 columns
+    for row in range(1,vars['grid_y']+1):
+        for col in range(vars['grid_x']):
+            # Calculate the x and y coordinates for each cell
+            x = col * 50 *screensSizeMultiplier
+            y = row * 50 *screensSizeMultiplier
+            
+            # Move the turtle to the starting position of the cell
+            t.up()
+            t.goto((x-(vars['grid_x']*25)*screensSizeMultiplier), (y-(vars['grid_y']*25)*screensSizeMultiplier))
+            t.down()
+            
+            # Draw the cell
+            for _ in range(4):
+                t.forward(50*screensSizeMultiplier)
+                t.right(90)
+
+    movetodot(xvar,yvar)
+    t.width(lineWidth*screensSizeMultiplier)
+    t.pencolor('green')
+    t.dot(lineWidth*2.5*screensSizeMultiplier)
+    size = t.turtlesize()
+    increase = (screensSizeMultiplier*.6 * num for num in size)
+    t.turtlesize(*increase)
+    t.shape('arrow')
+    if showRobotMoving == True:
+        t.tracer(1, 0)
+        t.delay(25)
+        t.speed(vars['lineSpeed'])
+    t.down()
+
+
+    for command in commands:
+        if darkmode() == True:
+            t.pencolor(randint(40,115)/120,randint(40,115)/120,randint(40,115)/120)
+        else:
+            t.pencolor(randint(0,90)/120,randint(0,90)/120,randint(0,90)/120)
+        if command[0] == 0: #straight moves
+            t.forward(command[1]*screensSizeMultiplier)
+        elif command[0] == 1: #turn moves
+            if command[1] < 0:
+                t.left(command[1]*-1)
+            else:
+                t.right(command[1])
+
+    t.color('red')
+    t.up()
+    t.update()
+    showRobotMoving = False   
 
 
 def open_preferences():
@@ -374,7 +447,7 @@ if True: # code for the radio button grid
 
         xvar = index % (vars['grid_x']+2)
         yvar = index // (vars['grid_x']+2)
-        root.quit()
+        tupdate()
 
     selectframe=tk.Frame(bottomFrame)
     selectframe.grid(row=0,column=1)
@@ -438,17 +511,8 @@ def copy_text_func():
 def robotmove_func():
     global showRobotMoving
     showRobotMoving=True
-    root.quit()
-def resize(a=None):
-    global screensSizeMultiplier
-    xe=t.window_width()
-    ye=t.window_height()
-    if xe/ye > vars['grid_x']/vars['grid_y']:
-        screensSizeMultiplier = (ye/(50*vars['grid_y'])) * 0.8
-    else:
-        screensSizeMultiplier = (xe/(50*vars['grid_x'])) * 0.85
+    tupdate()
 
-    root.quit()
 
 def movetodot(x,y):
     t.up()
@@ -489,7 +553,7 @@ preferences_button.grid(row=0, column=1, sticky="en")
 text_box.insert('1.0', "3")
 text_box.delete('1.0') 
 
-root.mainloop()
+
 t.title("Robot Path Map")
 
 if os.path.isfile(os.path.join(__location__,"root2.conf")): 
@@ -511,8 +575,7 @@ root.createcommand('tk::mac::ShowHelp',open_docs_link) #set help menu
 
     
 canvas=t.getcanvas()
-canvas.bind("<Configure>", resize)
-resize()
+#canvas.bind("<Configure>", tupdate) # doesnt work
 
 def on_close_turtle(a=None):
     with open(os.path.join(__location__,"root.conf"), "w") as conf: 
@@ -532,78 +595,8 @@ root.protocol("WM_DELETE_WINDOW", on_close_turtle)
 root.createcommand("::tk::mac::Quit", on_close_turtle)
 movebutton = ttk.Button(canvas.master, text ="Robot Moving Animation", command = robotmove_func)
 movebutton.place(x=0,y=0)
+tupdate()
+_thread.start_new_thread(t.mainloop,())
+root.mainloop()
 
-
-while True:
-    try:
-        t.speed("fastest")
-        t.tracer(0,0)
-        #canvas.delete("all")
-        #rect = canvas.create_rectangle(10*screensSizeMultiplier, 10*screensSizeMultiplier, 50*screensSizeMultiplier, 50*screensSizeMultiplier, fill="blue")
-
-        t.reset()
-        if darkmode() == True:
-            t.color('white')
-            t.Screen().bgcolor('black')
-            t.pencolor('#888888')
-        else:
-            t.color('black')
-            t.Screen().bgcolor('white')  
-            t.pencolor("black")
-        t.width(1*screensSizeMultiplier)
-
-        # Draw a grid with 4 rows and 5 columns
-        for row in range(1,vars['grid_y']+1):
-            for col in range(vars['grid_x']):
-                # Calculate the x and y coordinates for each cell
-                x = col * 50 *screensSizeMultiplier
-                y = row * 50 *screensSizeMultiplier
-                
-                # Move the turtle to the starting position of the cell
-                t.up()
-                t.goto((x-(vars['grid_x']*25)*screensSizeMultiplier), (y-(vars['grid_y']*25)*screensSizeMultiplier))
-                t.down()
-                
-                # Draw the cell
-                for _ in range(4):
-                    t.forward(50*screensSizeMultiplier)
-                    t.right(90)
-
-        movetodot(xvar,yvar)
-        t.width(lineWidth*screensSizeMultiplier)
-        t.pencolor('green')
-        t.dot(lineWidth*2.5*screensSizeMultiplier)
-        size = t.turtlesize()
-        increase = (screensSizeMultiplier*.6 * num for num in size)
-        t.turtlesize(*increase)
-        t.shape('arrow')
-        if showRobotMoving == True:
-            t.tracer(1, 0)
-            t.delay(25)
-            t.speed(vars['lineSpeed'])
-        t.down()
-
-
-        for command in commands:
-            if darkmode() == True:
-                t.pencolor(randint(40,115)/120,randint(40,115)/120,randint(40,115)/120)
-            else:
-                t.pencolor(randint(0,90)/120,randint(0,90)/120,randint(0,90)/120)
-            if command[0] == 0: #straight moves
-                t.forward(command[1]*screensSizeMultiplier)
-            elif command[0] == 1: #turn moves
-                if command[1] < 0:
-                    t.left(command[1]*-1)
-                else:
-                    t.right(command[1])
-
-        t.color('red')
-        t.up()
-        t.update()
-        showRobotMoving = False   
-
-
-        t.mainloop()
-    except t.Terminator:
-        break
-t.done
+#t.done
