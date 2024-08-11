@@ -32,7 +32,9 @@ jobs:
             run: cxfreeze bdist_msi
             
           - name: Upload to release
-            run: gh release upload ${{github.event.release.tag_name}} dist/*.msi
+            run: |
+                mv dist/*.msi dist/RCAInstaller_win_x64.msi
+                gh release upload ${{github.event.release.tag_name}} dist/*.msi
             env:
               GITHUB_TOKEN: ${{ github.TOKEN }}
     build_macarm64:
@@ -59,8 +61,8 @@ jobs:
             
           - name: Upload to release
             run: |
-                mv 'build/Robot Coaching Assistant Installer.dmg' 'build/RobotCoachingAssistantInstaller_arm64.dmg'
-                gh release upload ${{github.event.release.tag_name}} 'build/RobotCoachingAssistantInstaller_arm64.dmg'
+                mv 'build/Robot Coaching Assistant Installer.dmg' 'build/RCAInstaller_mac_arm64.dmg'
+                gh release upload ${{github.event.release.tag_name}} 'build/RCAInstaller_mac_arm64.dmg'
             env:
                   GITHUB_TOKEN: ${{ github.TOKEN }}
     build_macx64:
@@ -87,8 +89,8 @@ jobs:
             
           - name: Upload to release
             run: |
-                mv 'build/Robot Coaching Assistant Installer.dmg' 'build/RobotCoachingAssistantInstaller_x86_64.dmg'
-                gh release upload ${{github.event.release.tag_name}} 'build/RobotCoachingAssistantInstaller_x86_64.dmg'
+                mv 'build/Robot Coaching Assistant Installer.dmg' 'build/RCAInstaller_mac_x64.dmg'
+                gh release upload ${{github.event.release.tag_name}} 'build/RCAInstaller_mac_x64.dmg'
             env:
               GITHUB_TOKEN: ${{ github.TOKEN }}
 
