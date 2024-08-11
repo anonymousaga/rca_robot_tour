@@ -9,7 +9,7 @@ executables = [
 ]
 
 [tool.cxfreeze.build_exe]
-include_files=['config.json','compileFile.py','root.conf','root2.conf','pyproject.toml']
+include_files=['config.json','compileFile.py','pyproject.toml']
 
 [tool.cxfreeze.bdist_mac]
 bundle_name="Robot Coaching Assistant"
