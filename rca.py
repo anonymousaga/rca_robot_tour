@@ -138,7 +138,7 @@ text_box = UndoableEntry(root)
 text_box.bind("<<Modified>>", modified_flag_changed)
 
 # Read the pyproject.toml file
-with open("pyproject.toml", "r") as f:
+with open(os.path.join(__location__,"pyproject.toml"), "r") as f:
     version = toml.load(f)["project"]["version"]
 
 lineWidth=2.5
