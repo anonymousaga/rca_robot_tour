@@ -118,7 +118,7 @@ if os.path.isfile(os.path.join(__location__,"root.conf")):
         root.geometry(conf.read())
 else:
     #Default window position.
-    root.geometry('1000x800+0+0')
+    root.geometry('800x800+0+0')
 
 
     
@@ -499,7 +499,7 @@ if os.path.isfile(os.path.join(__location__,"root2.conf")):
         t.setup(width=int(tsize[0]),height=int(tsize[1]),startx=int(tsetup[1]),starty=int(tsetup[2])) 
 else:
     #Default window position.
-    t.setup(width=1000,height=800,startx=0,starty=0)
+    t.setup(width=800,height=800,startx=200,starty=0)
 
 
 preferences_is_open = False
