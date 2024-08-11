@@ -3,15 +3,13 @@ import turtle as t
 from random import randint
 import time
 import tkinter as tk
-from tkinter import ttk
 import _thread 
-from tkinter import *
 #from ast import literal_eval
 import json
 import os
 import sys
 from compileFile import *
-from tkinter import ttk
+from tkinter import font, ttk
 from tkinter import *
 import webbrowser
 
@@ -19,6 +17,7 @@ import webbrowser
 pyperclip_enable=True
 if pyperclip_enable==True:
     import pyperclip
+import toml
 
 
 
@@ -47,7 +46,7 @@ with open(os.path.join(__location__,"config.json"), "r") as f:
     vars = json.load(f)
 
 
-class UndoableEntry(Text):
+class UndoableEntry(tk.Text):
     def __init__(self, master=None, **kwargs):
         super().__init__(master, **kwargs)
         self.bind("<Control-z>", self.undo)
@@ -98,6 +97,8 @@ def read_commandstk():
 
 
 
+
+
 #Here I save the x and y position of the window to a file "root.conf"
 #Here I see if the file exists.
 if os.path.isfile(os.path.join(__location__,"root.conf")): 
@@ -136,7 +137,9 @@ def modified_flag_changed(event=None):
 text_box = UndoableEntry(root)
 text_box.bind("<<Modified>>", modified_flag_changed)
 
-
+# Read the pyproject.toml file
+with open("pyproject.toml", "r") as f:
+    version = toml.load(f)["project"]["version"]
 
 lineWidth=2.5
 
@@ -145,136 +148,207 @@ screensSizeMultiplier=1
 
 root.minsize(500,600)
 
+def open_docs_link(event=None):
+    webbrowser.open("https://github.com/anonymousaga/rca_robot_tour/blob/main/README.md")
+
+preferences_window=None
+about_window=None
+about_is_open = False
+
+class BoldLabel(tk.Label):
+    def __init__(self, master=None, **kwargs):
+        super().__init__(master, **kwargs)
+        bold_font = font.Font(self, self.cget("font"))
+        bold_font.configure(weight="bold")
+        self.configure(font=bold_font)
+
+def open_about():
+    global about_is_open
+    global about_window
+    
+    if about_is_open is False:
+        about_is_open = True
+        about_window = tk.Toplevel(root)
+        #about_window.title("About RCA")
+        about_window.geometry("280x170")
+        about_window.resizable(False, False) # make False, False to enable pop-out window on macOS
+        about_window.title("")
+        img = PhotoImage(file=(os.path.join(__location__,"icon.png")))
+        img = img.subsample(13) #mechanically, here it is adjusted to 32 instead of 320
+        panel = tk.Label(about_window, image = img)
+        panel.pack(side='top', pady=3)
+        label2=BoldLabel(about_window, text="Robot Coaching Assistant")
+
+        label2.pack(side='top',pady=6)
+
+        version_label = ttk.Label(about_window, text=f"Version: {version}")
+        version_label.configure(font=("TkDefaultFont", 11))
+        version_label.pack(side='top')
+        fram2=tk.Frame(about_window)
+
+
+        label1 = ttk.Label(fram2, text="Developed by")
+        label1.configure(font=("TkDefaultFont", 11))
+        label1.pack(side='left')
+
+        label2 = ttk.Label(fram2, text="anonymousaga", foreground="#0099FF")
+        label2.configure(font=("TkDefaultFont", 11))
+        label2.pack(side='left')
+        label2.bind("<Button-1>", lambda event: webbrowser.open("https://github.com/anonymousaga"))
+
+        label3 = ttk.Label(fram2, text="with ❤️")
+        label3.configure(font=("TkDefaultFont", 11))
+        label3.pack(side='left')
+        fram2.pack(side='top')
+
+        def _quitprefs():
+            about_window.quit()
+            about_window.destroy()
+        about_window.protocol("WM_DELETE_WINDOW", _quitprefs)
+        about_window.mainloop()
+        about_is_open = False
+    else:
+        about_window.focus_force()
+
+
+
+
+
 
 def open_preferences():
     global vars
-    preferences_window = tk.Toplevel(root)
-    preferences_window.title("Preferences")
-    preferences_window.minsize(600,420)
-    preferences_window.resizable(True, True) # make False, False to enable pop-out window on macOS
+    global preferences_is_open
+    global preferences_window
+    
+    if preferences_is_open is False:
+        preferences_is_open = True
+        preferences_window = tk.Toplevel(root)
+        preferences_window.title("Preferences")
+        preferences_window.minsize(600,420)
+        preferences_window.resizable(True, True) # make False, False to enable pop-out window on macOS
 
-    preferences_scrollbar = ttk.Scrollbar(preferences_window)
-    preferences_scrollbar.pack(side="right", fill="y")
+        preferences_scrollbar = ttk.Scrollbar(preferences_window)
+        preferences_scrollbar.pack(side="right", fill="y")
 
-    preferences_canvas = tk.Canvas(preferences_window, yscrollcommand=preferences_scrollbar.set)
-    preferences_canvas.pack(side="left", fill="both", expand=True)
+        preferences_canvas = tk.Canvas(preferences_window, yscrollcommand=preferences_scrollbar.set)
+        preferences_canvas.pack(side="left", fill="both", expand=True)
+        
+
+        
+        preferences_scrollbar.config(command=preferences_canvas.yview)
+
+        preferences_frame = ttk.Frame(preferences_canvas)
+        preferences_canvas.create_window((0, 0), window=preferences_frame, anchor="nw")
+
+        preferences_frame.bind("<Configure>", lambda e: preferences_canvas.configure(scrollregion=preferences_canvas.bbox("all")))
+
+        version_label = ttk.Label(preferences_frame, text=f"  Version: {version}")
+        #version_label.configure(font=("TkDefaultFont", 10))
+        version_label.grid(row=0, column=2, sticky='w')
+
+        def modified_flag_changed_prefs(event=None):
+            if variable_entry.edit_modified():
+                variable_entry.configure(height=len(variable_entry.get("1.0", "end").splitlines()))
+                variable_entry.edit_modified(False)
+
+        preferences_window.configure(padx=5, pady=5)
+        Grid.columnconfigure(preferences_frame,3, weight=1)
+
+        darkmode_label = ttk.Label(preferences_frame, text="Dark Mode for map:")
+        darkmode_label.grid(row=3, column=0, sticky="e")
+
     
 
-    
-    preferences_scrollbar.config(command=preferences_canvas.yview)
 
-    preferences_frame = ttk.Frame(preferences_canvas)
-    preferences_canvas.create_window((0, 0), window=preferences_frame, anchor="nw")
-
-    preferences_frame.bind("<Configure>", lambda e: preferences_canvas.configure(scrollregion=preferences_canvas.bbox("all")))
-
-    
-
-    def modified_flag_changed_prefs(event=None):
-        if variable_entry.edit_modified():
-            variable_entry.configure(height=len(variable_entry.get("1.0", "end").splitlines()))
-            variable_entry.edit_modified(False)
-
-    preferences_window.configure(padx=5, pady=5)
-    Grid.columnconfigure(preferences_frame,3, weight=1)
-
-    darkmode_label = ttk.Label(preferences_frame, text="Dark Mode for map:")
-    darkmode_label.grid(row=3, column=0, sticky="e")
-
-   
-
-    def open_link(event):
-        webbrowser.open("https://github.com/anonymousaga/rca_robot_tour/blob/main/README.md")
+        github_link_button = ttk.Button(preferences_frame, text="Documentation/Help on Github")
+        github_link_button.grid(row=0, column=0, columnspan=2, sticky='ew')
+        github_link_button.bind("<Button-1>", open_docs_link)
+        
 
 
-    github_link_button = ttk.Button(preferences_frame, text="Documentation/Help on Github")
-    github_link_button.grid(row=0, column=0, columnspan=2, ipadx=30)
-    github_link_button.bind("<Button-1>", open_link)
-    
+        darkmode_frame = ttk.Frame(preferences_frame)
+        darkmode_frame.grid(row=3, column=1)
 
+        darkmode_var = tk.StringVar(value=vars['darkmode'])
+        
+        yes_radio = ttk.Radiobutton(darkmode_frame, text="Yes", variable=darkmode_var, value="yes")
+        yes_radio.pack(side="left", padx=10)
 
-    darkmode_frame = ttk.Frame(preferences_frame)
-    darkmode_frame.grid(row=3, column=1)
+        no_radio = ttk.Radiobutton(darkmode_frame, text="No", variable=darkmode_var, value="no")
+        no_radio.pack(side="left", padx=10)
 
-    darkmode_var = tk.StringVar(value=vars['darkmode'])
-    
-    yes_radio = ttk.Radiobutton(darkmode_frame, text="Yes", variable=darkmode_var, value="yes")
-    yes_radio.pack(side="left", padx=10)
-
-    no_radio = ttk.Radiobutton(darkmode_frame, text="No", variable=darkmode_var, value="no")
-    no_radio.pack(side="left", padx=10)
-
-    vars['darkmode'] = darkmode_var.get()
-
-    cm_offset_label = ttk.Label(preferences_frame, text="Starting Dot Offset:")
-    cm_offset_label.grid(row=2, column=0, sticky="e")
-
-    cm_offset_entry = ttk.Entry(preferences_frame)
-    cm_offset_entry.grid(row=2, column=1)
-
-    grid_label = ttk.Label(preferences_frame, text="Track Size (rows, columns):")
-    grid_label.grid(row=1, column=0, sticky="e")
-
-    rows_entry = ttk.Entry(preferences_frame)
-    rows_entry.grid(row=1, column=1)
-
-    cols_entry = ttk.Entry(preferences_frame)
-    cols_entry.grid(row=1, column=2)
-
-    rows_entry.insert(0, str(vars['grid_y']))
-    cols_entry.insert(0, str(vars['grid_x']))
-    cm_offset_entry.insert(0, str(vars['cm_offset']))
-
-    lineSpeed_label = ttk.Label(preferences_frame, text="Robot Moving Speed:")
-    lineSpeed_label.grid(row=4, column=0, sticky="e")
-
-    lineSpeed_slider = ttk.Scale(preferences_frame, from_=1, to=10, orient="horizontal", length=400)
-    lineSpeed_slider.grid(row=4, column=1,columnspan=2)
-
-    lineSpeed_slider.set(vars['lineSpeed'])
-    
-
-    variable_label = ttk.Label(preferences_frame, text="compileCommands\nFunction:")
-    variable_label.grid(row=5, column=0, sticky="e")
-
-
-    Grid.rowconfigure(root,5, weight=1)
-
-
-    variable_entry = UndoableEntry(preferences_frame)
-    with open(os.path.join(__location__,"compileFile.py"), "r") as f:
-        variable_entry.insert(1.0, f.read())
-    variable_entry.bind("<<Modified>>", modified_flag_changed_prefs)
-    variable_entry.grid(row=5, column=1,columnspan=3,sticky="news")
-    
-    def save_prefs():
-        global vars
-        vars['grid_y'] = round(float(rows_entry.get()))
         vars['darkmode'] = darkmode_var.get()
-        vars['grid_x'] = round(float(cols_entry.get()))
-        vars['lineSpeed'] = round(float(lineSpeed_slider.get()),2)
-        vars['cm_offset'] = float(cm_offset_entry.get())
-        with open(os.path.join(__location__,"config.json"), "w") as f:
-            json.dump(vars,f)
-        with open(os.path.join(__location__,"compileFile.py"), "w") as f:
-            f.write(variable_entry.get('1.0','end'))
-        preferences_frame.destroy()
-        on_close_turtle()
+
+        cm_offset_label = ttk.Label(preferences_frame, text="Starting Dot Offset:")
+        cm_offset_label.grid(row=2, column=0, sticky="e")
+
+        cm_offset_entry = ttk.Entry(preferences_frame)
+        cm_offset_entry.grid(row=2, column=1)
+
+        grid_label = ttk.Label(preferences_frame, text="Track Size (rows, columns):")
+        grid_label.grid(row=1, column=0, sticky="e")
+
+        rows_entry = ttk.Entry(preferences_frame)
+        rows_entry.grid(row=1, column=1)
+
+        cols_entry = ttk.Entry(preferences_frame)
+        cols_entry.grid(row=1, column=2)
+
+        rows_entry.insert(0, str(vars['grid_y']))
+        cols_entry.insert(0, str(vars['grid_x']))
+        cm_offset_entry.insert(0, str(vars['cm_offset']))
+
+        lineSpeed_label = ttk.Label(preferences_frame, text="Robot Moving Speed:")
+        lineSpeed_label.grid(row=4, column=0, sticky="e")
+
+        lineSpeed_slider = ttk.Scale(preferences_frame, from_=1, to=10, orient="horizontal", length=400)
+        lineSpeed_slider.grid(row=4, column=1,columnspan=2)
+
+        lineSpeed_slider.set(vars['lineSpeed'])
+        
+
+        variable_label = ttk.Label(preferences_frame, text="compileCommands\nFunction:")
+        variable_label.grid(row=5, column=0, sticky="e")
 
 
-
-    save_prefs_button = ttk.Button(preferences_frame, text="Save Preferences And Quit", command=save_prefs)
-    save_prefs_button.grid(row=preferences_frame.grid_size()[1]+1, column=0, columnspan=2)
-    
-    preferences_canvas.config(yscrollincrement = 2)
-    def on_mousewheel(event):
-        preferences_canvas.yview_scroll(int(-1*(event.delta*6)), "units")
-    
-    preferences_window.bind("<MouseWheel>", on_mousewheel)
+        Grid.rowconfigure(root,5, weight=1)
 
 
-
-    preferences_window.mainloop()
+        variable_entry = UndoableEntry(preferences_frame)
+        with open(os.path.join(__location__,"compileFile.py"), "r") as f:
+            variable_entry.insert(1.0, f.read())
+        variable_entry.bind("<<Modified>>", modified_flag_changed_prefs)
+        variable_entry.grid(row=5, column=1,columnspan=3,sticky="news")
+        
+        def save_prefs():
+            global vars
+            vars['grid_y'] = round(float(rows_entry.get()))
+            vars['darkmode'] = darkmode_var.get()
+            vars['grid_x'] = round(float(cols_entry.get()))
+            vars['lineSpeed'] = round(float(lineSpeed_slider.get()),2)
+            vars['cm_offset'] = float(cm_offset_entry.get())
+            with open(os.path.join(__location__,"config.json"), "w") as f:
+                json.dump(vars,f)
+            with open(os.path.join(__location__,"compileFile.py"), "w") as f:
+                f.write(variable_entry.get('1.0','end'))
+            preferences_frame.destroy()
+            on_close_turtle()
+        save_prefs_button = ttk.Button(preferences_frame, text="Save Preferences And Quit", command=save_prefs)
+        save_prefs_button.grid(row=preferences_frame.grid_size()[1]+1, column=0, columnspan=2)
+        
+        preferences_canvas.config(yscrollincrement = 2)
+        def on_mousewheel(event):
+            preferences_canvas.yview_scroll(int(-1*(event.delta*6)), "units")
+        
+        preferences_window.bind("<MouseWheel>", on_mousewheel)
+        def _quitprefs():
+            preferences_window.quit()
+            preferences_window.destroy()
+        preferences_window.protocol("WM_DELETE_WINDOW", _quitprefs)
+        preferences_window.mainloop()
+        preferences_is_open = False
+    else:
+        preferences_window.focus_force()
 
 
 
@@ -419,6 +493,10 @@ else:
     t.setup(width=1000,height=800,startx=0,starty=0)
 
 
+preferences_is_open = False
+root.createcommand('tkAboutDialog',open_about) #set about menu
+root.createcommand('tk::mac::ShowPreferences',open_preferences) #set preferences menu
+root.createcommand('tk::mac::ShowHelp',open_docs_link) #set help menu
 
 
 
