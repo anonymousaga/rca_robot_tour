@@ -1,4 +1,4 @@
-# [<img src="icon.png" width="40"/>](image.png)  Robot Coaching Assistant (RCA)
+# [<img src="icon.png" width="40"/>](icon.png)  Robot Coaching Assistant (RCA)
 
 A tool to simulate a robot's path for robot tour in Science Olympiad. \
 ⚠️You MUST set up `compileCommands` to use this. [How to configure compileCommands](docs/COMPILE_COMMANDS.md)
