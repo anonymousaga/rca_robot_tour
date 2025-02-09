@@ -221,6 +221,8 @@ def open_about():
 def tupdate(event=None):
     global showRobotMoving
     global screensSizeMultiplier
+    writeROW=-1
+    writeCOL=-1
     screen = t.Screen()
     #screen._root.lift()  # Bring window to front
     xe=t.window_width()
@@ -246,32 +248,44 @@ def tupdate(event=None):
             y = row * 50 *screensSizeMultiplier
             
             # Move the turtle to the starting position of the cell
-            t.color(pencolor)
+            t.pencolor(pencolor)
             t.up()
             t.goto((x-(vars['grid_x']*25)*screensSizeMultiplier), (y-(vars['grid_y']*25)*screensSizeMultiplier))
             t.down()
             
+            for index,zone in enumerate(gatezones):
+                if row==zone[0] and col==zone[1]:
+                    # set the fillcolor 
+                    t.fillcolor(highlightcolorGate) 
+                    # start the filling color 
+                    t.begin_fill()
+                    if index == len(gatezones)-1:
+                        writeROW=row
+                        writeCOL=col
+
             # Draw the cell
             for i in range(4):
                 if ((i == 2 and row > 1) or (i == 3 and col>0)) and highlightOn == True:
                     t.forward(10*screensSizeMultiplier)
-                    t.color(highlightcolor)
+                    t.pencolor(highlightcolor)
                     t.width(7*screensSizeMultiplier)
                     t.forward(30*screensSizeMultiplier)
                     t.width(1*screensSizeMultiplier)
-                    t.color(pencolor)
+                    t.pencolor(pencolor)
                     t.forward(10*screensSizeMultiplier)
                 elif ((i == 2 and row == 1) or (i == 3 and col == 0) or (i == 1 and col == (vars['grid_x']-1)) or (i == 0 and row == vars['grid_y'])) and highlightOn == True:
                     t.forward(25*screensSizeMultiplier)
-                    t.color(highlightcolorStart)
+                    t.pencolor(highlightcolorStart)
                     t.dot(10*screensSizeMultiplier)
-                    t.color(pencolor)
+                    t.pencolor(pencolor)
                     t.forward(25*screensSizeMultiplier)
                 else:
-                    t.color(pencolor)
+                    t.pencolor(pencolor)
                     t.width(1*screensSizeMultiplier)
                     t.forward(50*screensSizeMultiplier)
                 t.right(90)
+            t.end_fill()
+
             enddottrue=(enddotx == col and enddoty == row)
             if highlightOn == True or enddottrue: # draw the end points
                 t.up()
@@ -280,11 +294,25 @@ def tupdate(event=None):
                 t.forward(25*screensSizeMultiplier)
                 t.setheading(0)
                 if enddottrue==True:
-                    t.color('red')
+                    t.pencolor('red')
                 else:
-                    t.color(highlightcolorDot)
+                    t.pencolor(highlightcolorDot)
                 t.dot(8*screensSizeMultiplier)
+                
 
+    t.up()
+    t.goto(((((50*writeCOL)+25)*screensSizeMultiplier)-(vars['grid_x']*25)*screensSizeMultiplier), ((50*writeROW*screensSizeMultiplier)-(vars['grid_y']*25)*screensSizeMultiplier))
+    t.right(90)
+    t.forward(30*screensSizeMultiplier)
+    t.down()
+    if writeCOL != -1:
+        t.write("LAST", align="center", font=("Arial", int(8*screensSizeMultiplier), "normal"))
+    t.up()
+    t.right(180)
+    t.forward(30*screensSizeMultiplier)
+    t.left(90)
+    t.forward(25*screensSizeMultiplier)
+    t.setheading(0)
     for barrier in barrierList:
         t.up()
         if barrier[0] == 0: # column
@@ -293,25 +321,25 @@ def tupdate(event=None):
             t.forward(50*screensSizeMultiplier)
             t.right(90)
             t.forward(10*screensSizeMultiplier)
-            t.color(barrierColor)
+            t.pencolor(barrierColor)
             t.width(7*screensSizeMultiplier)
             t.down()
             t.forward(30*screensSizeMultiplier)
             t.up()
             t.width(1*screensSizeMultiplier)
-            t.color(pencolor)
+            t.pencolor(pencolor)
             t.forward(10*screensSizeMultiplier)
         else: # row
             t.setheading(0)  # Reset heading to face east
             t.goto((((barrier[1])*50*screensSizeMultiplier)-(vars['grid_x']*25)*screensSizeMultiplier), (((barrier[2]-1)*50*screensSizeMultiplier)-(vars['grid_y']*25)*screensSizeMultiplier))
             t.forward(10*screensSizeMultiplier)
-            t.color(barrierColor)
+            t.pencolor(barrierColor)
             t.width(7*screensSizeMultiplier)
             t.down()
             t.forward(30*screensSizeMultiplier)
             t.up()
             t.width(1*screensSizeMultiplier)
-            t.color(pencolor)
+            t.pencolor(pencolor)
             t.forward(10*screensSizeMultiplier)
     t.setheading(0)  # Reset heading to face east
     
@@ -596,6 +624,7 @@ def on_close_turtle(a=None):
 if darkmode() == True:
     pencolor="white"
     highlightcolor="#005A8D"
+    highlightcolorGate="#005601"
     highlightcolorStart="#005506"
     highlightcolorDot="#750000"
     t.Screen().bgcolor('black')
@@ -603,13 +632,15 @@ if darkmode() == True:
 else:
     pencolor="black"
     highlightcolor="#99DAFF"
+    highlightcolorGate="#9FFFA0"
     highlightcolorStart="#AEFFB3"
     highlightcolorDot="#FF8E8E"
     t.Screen().bgcolor('white')  
     colorPallete=[[0.058, 0.275, 0.117], [0.683, 0.683, 0.55], [0.092, 0.308, 0.525], [0.217, 0.742, 0.008], [0.2, 0.567, 0.75], [0.267, 0.517, 0.142], [0.6, 0.2, 0.508], [0.717, 0.45, 0.283], [0.133, 0.05, 0.567], [0.35, 0.717, 0.5], [0.292, 0.475, 0.742], [0.317, 0.117, 0.325], [0.15, 0.6, 0.192], [0.008, 0.108, 0.55], [0.483, 0.383, 0.75], [0.3, 0.383, 0.342], [0.683, 0.533, 0.308], [0.467, 0.158, 0.3], [0.475, 0.025, 0.517], [0.533, 0.242, 0.592], [0.467, 0.133, 0.617], [0.0, 0.617, 0.133], [0.133, 0.617, 0.4], [0.308, 0.233, 0.45], [0.592, 0.475, 0.267], [0.392, 0.417, 0.367], [0.55, 0.608, 0.642], [0.233, 0.592, 0.275], [0.275, 0.458, 0.342], [0.208, 0.258, 0.2], [0.217, 0.65, 0.242], [0.233, 0.108, 0.008], [0.275, 0.208, 0.333], [0.4, 0.167, 0.383], [0.492, 0.583, 0.517], [0.65, 0.05, 0.575], [0.275, 0.05, 0.058], [0.692, 0.717, 0.008], [0.617, 0.383, 0.617], [0.542, 0.742, 0.167], [0.525, 0.067, 0.4], [0.2, 0.25, 0.233], [0.4, 0.325, 0.358], [0.642, 0.717, 0.4], [0.392, 0.183, 0.233], [0.425, 0.075, 0.583], [0.25, 0.583, 0.283], [0.575, 0.25, 0.467], [0.467, 0.292, 0.008], [0.05, 0.6, 0.042], [0.258, 0.142, 0.092], [0.667, 0.367, 0.508], [0.233, 0.442, 0.05], [0.35, 0.15, 0.317], [0.65, 0.608, 0.317], [0.175, 0.717, 0.625], [0.625, 0.35, 0.408], [0.475, 0.208, 0.592], [0.25, 0.442, 0.25], [0.425, 0.3, 0.317], [0.592, 0.242, 0.217], [0.692, 0.717, 0.692], [0.383, 0.25, 0.508], [0.25, 0.4, 0.358], [0.617, 0.192, 0.142], [0.583, 0.225, 0.192], [0.5, 0.742, 0.0], [0.125, 0.208, 0.075], [0.267, 0.033, 0.142], [0.283, 0.567, 0.717], [0.075, 0.617, 0.408], [0.583, 0.642, 0.625], [0.325, 0.592, 0.342], [0.55, 0.742, 0.683], [0.25, 0.7, 0.458], [0.208, 0.075, 0.642], [0.283, 0.608, 0.525], [0.242, 0.217, 0.433], [0.3, 0.733, 0.033], [0.167, 0.75, 0.133], [0.75, 0.35, 0.225], [0.542, 0.4, 0.508], [0.558, 0.15, 0.608], [0.267, 0.167, 0.4], [0.033, 0.133, 0.467], [0.717, 0.683, 0.1], [0.283, 0.742, 0.55], [0.375, 0.417, 0.667], [0.017, 0.658, 0.233], [0.333, 0.075, 0.075], [0.35, 0.292, 0.408], [0.658, 0.642, 0.4], [0.492, 0.183, 0.633], [0.267, 0.117, 0.508], [0.425, 0.117, 0.292], [0.342, 0.15, 0.058], [0.317, 0.417, 0.25], [0.133, 0.658, 0.75], [0.683, 0.55, 0.583], [0.567, 0.567, 0.617], [0.65, 0.083, 0.708], [0.483, 0.533, 0.158], [0.658, 0.325, 0.258], [0.092, 0.533, 0.283], [0.025, 0.725, 0.717], [0.033, 0.442, 0.358], [0.058, 0.625, 0.517], [0.325, 0.742, 0.3], [0.233, 0.458, 0.717], [0.708, 0.2, 0.083], [0.292, 0.517, 0.275], [0.625, 0.192, 0.242], [0.575, 0.217, 0.267], [0.508, 0.725, 0.25], [0.708, 0.108, 0.175], [0.158, 0.542, 0.142], [0.55, 0.25, 0.542], [0.008, 0.267, 0.542], [0.067, 0.675, 0.2], [0.05, 0.492, 0.475], [0.333, 0.517, 0.225], [0.283, 0.492, 0.608], [0.567, 0.558, 0.733], [0.125, 0.567, 0.75], [0.633, 0.008, 0.492], [0.625, 0.142, 0.2], [0.525, 0.742, 0.133], [0.508, 0.567, 0.133], [0.35, 0.408, 0.6], [0.358, 0.15, 0.192], [0.492, 0.483, 0.167], [0.533, 0.35, 0.017], [0.283, 0.408, 0.042], [0.267, 0.65, 0.333], [0.108, 0.333, 0.725], [0.75, 0.008, 0.358], [0.158, 0.025, 0.467], [0.375, 0.725, 0.108], [0.517, 0.067, 0.7], [0.417, 0.442, 0.083], [0.467, 0.383, 0.392], [0.475, 0.733, 0.058], [0.117, 0.292, 0.542], [0.575, 0.3, 0.617], [0.458, 0.5, 0.042], [0.108, 0.15, 0.15], [0.042, 0.642, 0.258], [0.483, 0.358, 0.258], [0.717, 0.083, 0.3], [0.008, 0.55, 0.075], [0.0, 0.108, 0.175], [0.075, 0.642, 0.067], [0.433, 0.075, 0.608], [0.25, 0.358, 0.275], [0.125, 0.092, 0.317], [0.575, 0.733, 0.067], [0.142, 0.442, 0.458], [0.175, 0.4, 0.367], [0.3, 0.283, 0.208], [0.617, 0.558, 0.242], [0.625, 0.675, 0.542], [0.467, 0.4, 0.342], [0.733, 0.667, 0.425], [0.158, 0.275, 0.508], [0.1, 0.725, 0.408], [0.583, 0.067, 0.15], [0.175, 0.092, 0.733], [0.483, 0.667, 0.358], [0.292, 0.5, 0.583], [0.425, 0.633, 0.058], [0.417, 0.075, 0.233], [0.15, 0.258, 0.025], [0.75, 0.542, 0.192], [0.558, 0.2, 0.058], [0.242, 0.617, 0.683], [0.75, 0.658, 0.183], [0.242, 0.533, 0.192], [0.525, 0.642, 0.367], [0.608, 0.158, 0.333], [0.092, 0.083, 0.217], [0.325, 0.65, 0.592], [0.033, 0.333, 0.017], [0.658, 0.208, 0.283], [0.133, 0.675, 0.4], [0.425, 0.142, 0.225], [0.725, 0.567, 0.283], [0.675, 0.392, 0.258], [0.7, 0.25, 0.508], [0.375, 0.7, 0.125], [0.142, 0.625, 0.642], [0.617, 0.267, 0.208], [0.675, 0.075, 0.525], [0.7, 0.067, 0.25], [0.292, 0.125, 0.392], [0.283, 0.6, 0.425], [0.0, 0.408, 0.175], [0.217, 0.317, 0.475], [0.067, 0.7, 0.058], [0.275, 0.158, 0.042], [0.375, 0.575, 0.067]]
-t.color(pencolor)
+t.pencolor(pencolor)
 barrierColor="#AE5800"
 barrierList=[]
+gatezones=[]
 highlightOn=False
 gateSelect=True
 enddotx=0
@@ -705,6 +736,8 @@ def on_canvas_click(event):
             turtlecol=-1
         if turtlerow >= 0 and turtlecol >= 0 and turtlerow < vars['grid_y'] and turtlecol < vars['grid_x']:
             print(f"Cell clicked: column {turtlecol}, row {turtlerow}")
+            gatezones.append([turtlerow+1,turtlecol])
+            tupdate()
 
 # Add near bottom of file, before mainloop
 canvas.bind('<Button-1>', on_canvas_click)
