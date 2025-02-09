@@ -138,8 +138,14 @@ else:
     root.geometry('800x800+0+0')
 
 
-    
- 
+# colorful emojis
+try:
+    ttk.Style().configure(".", font=('Segoe UI Emoji', 10))  # Windows emoji font
+except:
+    try:
+        ttk.Style().configure(".", font=('Apple Color Emoji', 10))  # macOS emoji font 
+    except:
+        ttk.Style().configure(".", font=('Noto Color Emoji', 10))  # Linux emoji font
 
 
 
