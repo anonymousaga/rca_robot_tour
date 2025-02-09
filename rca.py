@@ -237,14 +237,14 @@ def tupdate(event=None):
     t.speed("fastest")
     t.tracer(0,0)
     if darkmode() == True:
-        t.color('white')
+        #t.color('white')
         t.Screen().bgcolor('black')
         t.pencolor('#888888')
     else:
-        t.color('black')
+        #t.color('black')
         t.Screen().bgcolor('white')  
         t.pencolor("black")
-    t.width(1*screensSizeMultiplier)
+    #t.width(1*screensSizeMultiplier)
 
     # Draw a grid with 4 rows and 5 columns
     for row in range(1,vars['grid_y']+1):
@@ -259,7 +259,18 @@ def tupdate(event=None):
             t.down()
             
             # Draw the cell
-            for _ in range(4):
+            for i in range(4):
+                if i == 2 and row > 1:
+                    t.width
+                    t.color('#8F6940')
+                    t.width(5*screensSizeMultiplier)
+                    print(t.width())
+                else:
+                    if darkmode() == True:
+                        t.color('white')
+                    else:
+                        t.color('black')
+                    t.width(1*screensSizeMultiplier)
                 t.forward(50*screensSizeMultiplier)
                 t.right(90)
 
@@ -594,6 +605,19 @@ canvas.master.protocol("WM_DELETE_WINDOW", on_close_turtle)
 root.protocol("WM_DELETE_WINDOW", on_close_turtle)
 root.createcommand("::tk::mac::Quit", on_close_turtle)
 movebutton = ttk.Button(canvas.master, text ="Robot Moving Animation", command = robotmove_func)
+
+def add_barrier():
+    barrier = tk.Canvas(canvas.master, width=50, height=50, bg='red')
+    barrier.place(x=randint(0, canvas.master.winfo_width()-50), y=randint(0, canvas.master.winfo_height()-50))
+
+
+barrierbutton = ttk.Button(canvas.master, text ="Add Barrier", command=add_barrier)
+
+
+barrierbutton.config(command=add_barrier)
+
+movebutton.place(x=0,y=0)
+barrierbutton.place(x=190,y=0)
 movebutton.place(x=0,y=0)
 tupdate()
 _thread.start_new_thread(t.mainloop,())
