@@ -222,29 +222,28 @@ def open_about():
     else:
         about_window.focus_force()
 
-
+ee=0
 
 def tupdate(event=None):
     global showRobotMoving
     global screensSizeMultiplier
+    global ee
+    screen = t.Screen()
+    #screen._root.lift()  # Bring window to front
     xe=t.window_width()
     ye=t.window_height()
     if xe/ye > vars['grid_x']/vars['grid_y']:
         screensSizeMultiplier = (ye/(50*vars['grid_y'])) * 0.8
     else:
         screensSizeMultiplier = (xe/(50*vars['grid_x'])) * 0.85
+    
     t.reset()
+    
     t.speed("fastest")
+    # Completely disable animation during drawing
     t.tracer(0,0)
-    if darkmode() == True:
-        #t.color('white')
-        t.Screen().bgcolor('black')
-        t.pencolor('#888888')
-    else:
-        #t.color('black')
-        t.Screen().bgcolor('white')  
-        t.pencolor("black")
-    #t.width(1*screensSizeMultiplier)
+    #screen.delay(0)
+
 
     # Draw a grid with 4 rows and 5 columns
     for row in range(1,vars['grid_y']+1):
@@ -264,7 +263,6 @@ def tupdate(event=None):
                     t.width
                     t.color('#8F6940')
                     t.width(5*screensSizeMultiplier)
-                    print(t.width())
                 else:
                     if darkmode() == True:
                         t.color('white')
@@ -273,7 +271,6 @@ def tupdate(event=None):
                     t.width(1*screensSizeMultiplier)
                 t.forward(50*screensSizeMultiplier)
                 t.right(90)
-
     movetodot(xvar,yvar)
     t.width(lineWidth*screensSizeMultiplier)
     t.pencolor('green')
@@ -287,6 +284,7 @@ def tupdate(event=None):
         t.delay(25)
         t.speed(vars['lineSpeed'])
     t.down()
+    
 
 
     for command in commands:
@@ -600,6 +598,16 @@ def on_close_turtle(a=None):
 #def fxn(x,y): 
 #    print(x,y)
 #t.Screen().onclick(fxn)
+if darkmode() == True:
+    t.color('white')
+    t.Screen().bgcolor('black')
+    t.pencolor('#888888')
+else:
+    t.color('black')
+    t.Screen().bgcolor('white')  
+    t.pencolor("black")
+
+
 canvas.master.minsize(500,600)
 canvas.master.protocol("WM_DELETE_WINDOW", on_close_turtle)
 root.protocol("WM_DELETE_WINDOW", on_close_turtle)
