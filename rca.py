@@ -339,6 +339,12 @@ def tupdate(event=None):
     showRobotMoving = False   
 
 
+def selectStart(y1,x1):
+    global xvar, yvar
+    xvar = x1
+    yvar = y1
+    tupdate()
+
 def open_preferences():
     global vars
     global preferences_is_open
@@ -478,69 +484,9 @@ def open_preferences():
 
 
 showRobotMoving=False
-if True: # code for the radio button grid
-    xvar=1
-    yvar=0
-
-    # Function to print the index of the selected radio button
-    def print_selected_coordinates():
-        global xvar,yvar
-        index = radio_var.get()
-
-        xvar = index % (vars['grid_x']+2)
-        yvar = index // (vars['grid_x']+2)
-        tupdate()
-
-    selectframe=tk.Frame(bottomFrame)
-    selectframe.grid(row=0,column=1)
-
-    # Configure the grid
-    for i in range(vars['grid_y']+2):
-        selectframe.grid_rowconfigure(i, weight=1)
-    for j in range(vars['grid_x']+2):
-        selectframe.grid_columnconfigure(j, weight=1)
-
-    # Create a variable to hold the value of the selected radio button
-    radio_var = tk.IntVar(value=1)
-    
-    # Function to create a frame with a radio button on the edge
-    def create_frame_with_radio(row, col, side,master):
-        frame = tk.Frame(master)
-        frame.grid(row=row, column=col, sticky="nsew")
-        if side == "top":
-            radio = tk.Radiobutton(frame, variable=radio_var, value=row*(vars['grid_x']+2)+col, command=print_selected_coordinates)
-            radio.pack(side="top")
-        elif side == "bottom":
-            radio = tk.Radiobutton(frame, variable=radio_var, value=row*(vars['grid_x']+2)+col, command=print_selected_coordinates)
-            radio.pack(side="bottom")
-        elif side == "left":
-            radio = tk.Radiobutton(frame, variable=radio_var, value=row*(vars['grid_x']+2)+col, command=print_selected_coordinates)
-            radio.pack(side="left")
-        elif side == "right":
-            radio = tk.Radiobutton(frame, variable=radio_var, value=row*(vars['grid_x']+2)+col, command=print_selected_coordinates)
-            radio.pack(side="right")
-
-    # Create the 6x7 grid of frames with radio buttons on the edges
-    for i in range(vars['grid_y']+2):
-        for j in range(vars['grid_x']+2):
-            if (i == 0 and j not in [0, vars['grid_x']+1]) or (i == vars['grid_y']+1 and j not in [0, vars['grid_x']+1]):
-                create_frame_with_radio(i, j, "top" if i == 0 else "bottom",selectframe)
-            elif (j == 0 and i not in [0, vars['grid_y']+1]) or (j == vars['grid_x']+1 and i not in [0, vars['grid_y']+1]):
-                create_frame_with_radio(i, j, "left" if j == 0 else "right",selectframe)
-            elif (i == 0 and j == 0) or (i == 0 and j == vars['grid_x']+1) or (i == vars['grid_y']+1 and j == 0) or (i == vars['grid_y']+1 and j == vars['grid_x']+1):
-                create_frame_with_radio(i, j, "none",selectframe)
-            else:
-                frame = tk.Frame(selectframe, borderwidth=1, relief="solid")
-                frame.grid(row=i, column=j, sticky="nsew")
-
-
-
-
 
 
 title_label = ttk.Label(root, text=" Enter commands here:", justify='left')
-radio_label = ttk.Label(bottomFrame, text=" Start\n Point", justify='right',padding=2)
-radio_label.grid(row=0, column=0)
 title_label.pack(expand=False, fill='x')
 text_box.pack(expand=True, fill='both')
 bottomFrame.pack(expand=False,fill='x')
@@ -649,6 +595,8 @@ t.color(pencolor)
 barrierColor="red"
 barrierList=[]
 highlightOn=False
+xvar=1
+yvar=0
 
 def toggleHighlight():
     global highlightOn
@@ -676,8 +624,6 @@ barrierbutton.place(x=0,y=70)
 barrierbutton_label.place(x=3, y=110)
 
 barrier=[]
-# Add near other global variables at top
-clicked_elements = []
 
 def on_canvas_click(event):  
     global barrierList
@@ -697,6 +643,10 @@ def on_canvas_click(event):
                     barrierList.remove(barrier)
                 else:
                     barrierList.append(barrier)
+            elif turtlecol == 0 or turtlecol == (vars['grid_x']):
+                if turtlecol > 0:
+                    turtlecol += 1
+                selectStart((vars['grid_y']-(turtlerow-1)),turtlecol)
         elif (abs(turtlerow - round(turtlerow)) < 0.3) and round(turtlerow) % 2 == vars['grid_y'] % 2:
             turtlerow=int((round(turtlerow)+vars['grid_y'])/2)+1
             turtlecol=int(((turtlecol)+vars['grid_x'])/2)
@@ -710,6 +660,11 @@ def on_canvas_click(event):
                     barrierList.remove(barrier)
                 else:
                     barrierList.append(barrier)
+            elif turtlerow == 1 or turtlerow == (vars['grid_y']+1):
+                turtlecol += 1
+                if turtlerow > 1:
+                    turtlerow += 1
+                selectStart((vars['grid_y']-(turtlerow-2)),turtlecol)
         tupdate()
 
 # Add near bottom of file, before mainloop
