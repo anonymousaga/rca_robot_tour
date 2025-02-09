@@ -7,6 +7,7 @@ import tkinter as tk
 #_thread.start_new_thread(th_func, ())
 import json
 import os
+import emoji
 import sys
 #try:
 #    from compileFile import *
@@ -931,7 +932,7 @@ def load_layout():
             show_error_dialog(f"Error loading layout file:\n{str(e)}")
 #load_layout()
 savebutton = tk.Button(canvas.master, text ="💾", command = save_layout, width=1, height=1, font=('TkDefaultFont', 20),bg="white", fg="black")
-savebutton_label = tk.Label(canvas.master, text="Save\nCourse", font=('TkDefaultFont', 10), bg="white", fg="black")
+savebutton_label = tk.Label(canvas.master, text=f'Save\nCourse{emoji.emojize(":astonished_face:")}', font=('TkDefaultFont', 10), bg="white", fg="black")
 savebutton.place(x=0,y=400)
 savebutton_label.place(x=3, y=440)
 savebutton.bind('<space>', disable_space)
