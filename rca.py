@@ -3,7 +3,7 @@ import turtle as t
 from random import randint
 import time
 import tkinter as tk
-import _thread 
+#import _thread 
 #_thread.start_new_thread(th_func, ())
 import json
 import os
@@ -969,7 +969,7 @@ loadbutton_label.place(x=3, y=430)
 
 
 tupdate()
-_thread.start_new_thread(t.mainloop,())
+#_thread.start_new_thread(t.mainloop,())
 root.mainloop()
 
 #t.done
