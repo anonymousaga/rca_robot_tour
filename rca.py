@@ -21,7 +21,6 @@ from tkinter import *
 import webbrowser
 from tkinter import filedialog
 from tkinter import filedialog
-from PIL import Image
 
 try:
     import pyperclip
@@ -850,7 +849,8 @@ def save_layout():
         'start': {'x': xvar, 'y': yvar},
         'end': {'x': enddotx, 'y': enddoty},
         'barriers': barrierList,
-        'gates': gatezones
+        'gates': gatezones,
+        'instructions': text_box.get('1.0', 'end').strip() # Add instructions from text box
     }
     
     filename = filedialog.asksaveasfilename(
@@ -885,6 +885,9 @@ def load_layout():
                 enddoty = layout_data['end']['y']
                 barrierList = layout_data['barriers']
                 gatezones = layout_data['gates']
+                # Load instructions into text box
+                text_box.delete('1.0', 'end')
+                text_box.insert('1.0', layout_data['instructions'])
                 tupdate()
         except Exception as e:
             show_error_dialog(f"Error loading layout file:\n{str(e)}")
@@ -925,27 +928,7 @@ loadbutton.place(x=0,y=390)
 loadbutton_label.place(x=3, y=430)
 
 
-def save_screenshot():
-    filename = filedialog.asksaveasfilename(
-        defaultextension=".png",
-        filetypes=[("PNG files", "*.png")],
-        initialfile="RCA_screenshot.png"
-    )
-    if filename:
-        # Save as EPS with maximum quality
-        canvas.postscript(file=filename + ".eps", colormode='color', pagewidth=3500, pageheight=3500)
-        try:
-            img = Image.open(filename + ".eps")
-            img.save(filename, "png")
-            os.remove(filename + ".eps")
-        except ImportError:
-            show_error_dialog("PIL/Pillow not installed, saving as EPS only")
 
-screenshotbutton = tk.Button(canvas.master, text ="📷", command = save_screenshot, width=1, height=1, font=('TkDefaultFont', 20),bg="white", fg="black")
-screenshotbutton_label = tk.Label(canvas.master, text="Save\nImage", font=('TkDefaultFont', 10), bg="white", fg="black")
-screenshotbutton.place(x=0,y=470)
-screenshotbutton_label.place(x=3, y=510)
-screenshotbutton.bind('<space>', disable_space)
 
 tupdate()
 _thread.start_new_thread(t.mainloop,())
