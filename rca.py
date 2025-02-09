@@ -12,7 +12,8 @@ from compileFile import *
 from tkinter import font, ttk
 from tkinter import *
 import webbrowser
-
+from tkinter import filedialog
+from tkinter import filedialog
 
 try:
     import pyperclip
@@ -792,6 +793,81 @@ def on_resize(event):
 canvas.bind('<Configure>', on_resize)
 
 
+
+def show_error_dialog(message):
+    error_window = tk.Toplevel(root)
+    error_window.title("Error")
+    error_window.geometry("300x100")
+    error_window.resizable(False, False)
+    
+    error_label = ttk.Label(error_window, text=message, wraplength=250)
+    error_label.pack(pady=20)
+    
+    ok_button = ttk.Button(error_window, text="OK", command=error_window.destroy)
+    ok_button.pack()
+    
+    error_window.transient(root)
+    error_window.grab_set()
+    error_window.wait_window()
+
+def save_layout():
+    global vars
+    
+    layout_data = {
+        'grid_x': vars['grid_x'],
+        'grid_y': vars['grid_y'],
+        'start': {'x': xvar, 'y': yvar},
+        'end': {'x': enddotx, 'y': enddoty},
+        'barriers': barrierList,
+        'gates': gatezones
+    }
+    
+    filename = filedialog.asksaveasfilename(
+        defaultextension=".json",
+        filetypes=[("JSON files", "*.json")],
+        initialfile="layout.json"
+    )
+    
+    if filename:
+        with open(filename, "w") as f:
+            json.dump(layout_data, f)
+
+def load_layout():
+    global xvar, yvar, enddotx, enddoty, barrierList, gatezones
+    
+    filename = filedialog.askopenfilename(
+        defaultextension=".json",
+        filetypes=[("JSON files", "*.json")]
+    )
+    
+    if filename:
+        try:
+            with open(filename, "r") as f:
+                layout_data = json.load(f)
+                if layout_data['grid_x'] != vars['grid_x'] or layout_data['grid_y'] != vars['grid_y']:
+                    show_error_dialog(f"Course size mismatch!\nFile is {layout_data['grid_x']}x{layout_data['grid_y']}\nCurrent size is {vars['grid_x']}x{vars['grid_y']}")
+                    return
+                    
+                xvar = layout_data['start']['x']
+                yvar = layout_data['start']['y']
+                enddotx = layout_data['end']['x']
+                enddoty = layout_data['end']['y']
+                barrierList = layout_data['barriers']
+                gatezones = layout_data['gates']
+                tupdate()
+        except Exception as e:
+            show_error_dialog(f"Error loading layout file:\n{str(e)}")
+#load_layout()
+savebutton = tk.Button(canvas.master, text ="💾", command = save_layout, width=1, height=1, font=('TkDefaultFont', 20),bg="white", fg="black")
+savebutton_label = tk.Label(canvas.master, text="Save\nLayout", font=('TkDefaultFont', 10), bg="white", fg="black")
+savebutton.place(x=0,y=400)
+savebutton_label.place(x=3, y=440)
+savebutton.bind('<space>', disable_space)
+loadbutton = tk.Button(canvas.master, text ="📂", command = load_layout, width=1, height=1, font=('TkDefaultFont', 20),bg="white", fg="black")
+loadbutton_label = tk.Label(canvas.master, text="Load\nLayout", font=('TkDefaultFont', 10), bg="white", fg="black")
+loadbutton.place(x=0,y=500)
+loadbutton_label.place(x=3, y=540)
+loadbutton.bind('<space>', disable_space)
 tupdate()
 _thread.start_new_thread(t.mainloop,())
 root.mainloop()
