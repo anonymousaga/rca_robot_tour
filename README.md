@@ -4,15 +4,16 @@ A tool to simulate a robot's path for robot tour in Science Olympiad. \
 ⚠️You MUST set up `compileCommands` to use this. [How to configure compileCommands](docs/COMPILE_COMMANDS.md)
 
 ## Usage
-* Select a start point using the grid: \
-  <img src="docs/selector_grid.png" width="250"/>
+* Add barriers, start point, and end point with the `Set Course` button. In course editing mode, simply click on elements to activate them.\
+  <img src="docs/selector_grid.jpg" width="350"/>
+* Add gates with the `Set Gates` button. Make sure to click on the gate zones **in order**, as the last gate clicked is marked as the last zone.
 * Paste in or type in your robot's movements, and the path will show up!
 * Click `Robot Moving Animation` to get an animation of the path
+* Save and load the course (and robot code) with the `Save Course` and `Load Course` buttons.
 
 ### Settings
 * **Track Size:** size of the robot tour course. 4x4 for 2023-24, 4x5 for 2024-25
 * **Starting Dot Offset** (default: 0): How far, in cm, the icon is from the course's edge when starting. Useful when the first move is longer than expected in order to align the center of the robot with the center of the box. For example, my bot travels 32cm instead of 25cm on the first move because the dowel is 7cm in front of the center.
-* **Dark Mode for Map:** invert the colors of the map
 * **Robot Moving Speed:** the speed of the robot moving animation
 * **compileCommands Function:** read [how to configure compileCommands](docs/COMPILE_COMMANDS.md)
 
