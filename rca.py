@@ -229,9 +229,9 @@ def tupdate(event=None):
     ye=t.window_height()
     t.width(1*screensSizeMultiplier)
     if xe/ye > vars['grid_x']/vars['grid_y']:
-        screensSizeMultiplier = (ye/(50*vars['grid_y'])) * 0.8
+        screensSizeMultiplier = (ye/(50*vars['grid_y'])) * 0.825
     else:
-        screensSizeMultiplier = (xe/(50*vars['grid_x'])) * 0.85
+        screensSizeMultiplier = (xe/(50*vars['grid_x'])) * 0.75
     
     t.reset()
     
@@ -281,7 +281,11 @@ def tupdate(event=None):
                     t.forward(25*screensSizeMultiplier)
                 else:
                     t.pencolor(pencolor)
-                    t.width(1*screensSizeMultiplier)
+                    if gateSelect == True:
+                        t.width(4*screensSizeMultiplier)
+                        t.pencolor("#A9C503")
+                    else:
+                        t.width(1*screensSizeMultiplier)
                     t.forward(50*screensSizeMultiplier)
                 t.right(90)
             t.end_fill()
@@ -303,13 +307,14 @@ def tupdate(event=None):
     t.up()
     t.goto(((((50*writeCOL)+25)*screensSizeMultiplier)-(vars['grid_x']*25)*screensSizeMultiplier), ((50*writeROW*screensSizeMultiplier)-(vars['grid_y']*25)*screensSizeMultiplier))
     t.right(90)
-    t.forward(30*screensSizeMultiplier)
+    t.forward(17*screensSizeMultiplier)
     t.down()
     if writeCOL != -1:
+        t.pencolor(pencolor)
         t.write("LAST", align="center", font=("Arial", int(8*screensSizeMultiplier), "normal"))
     t.up()
     t.right(180)
-    t.forward(30*screensSizeMultiplier)
+    t.forward(17*screensSizeMultiplier)
     t.left(90)
     t.forward(25*screensSizeMultiplier)
     t.setheading(0)
@@ -624,7 +629,7 @@ def on_close_turtle(a=None):
 if darkmode() == True:
     pencolor="white"
     highlightcolor="#005A8D"
-    highlightcolorGate="#005601"
+    highlightcolorGate="#758802"
     highlightcolorStart="#005506"
     highlightcolorDot="#750000"
     t.Screen().bgcolor('black')
@@ -632,7 +637,7 @@ if darkmode() == True:
 else:
     pencolor="black"
     highlightcolor="#99DAFF"
-    highlightcolorGate="#9FFFA0"
+    highlightcolorGate="#E7FD67"
     highlightcolorStart="#AEFFB3"
     highlightcolorDot="#FF8E8E"
     t.Screen().bgcolor('white')  
@@ -642,7 +647,7 @@ barrierColor="#AE5800"
 barrierList=[]
 gatezones=[]
 highlightOn=False
-gateSelect=True
+gateSelect=False
 enddotx=0
 enddoty=0
 xvar=1
@@ -650,10 +655,12 @@ yvar=0
 
 def toggleHighlight():
     global highlightOn
+    global gateSelect
     if highlightOn == True:
         highlightOn=False
     else:
         highlightOn=True
+        gateSelect=False
     tupdate()
 
 canvas.master.minsize(500,600)
@@ -665,13 +672,25 @@ movebutton_label = tk.Label(canvas.master, text="Animate", font=('TkDefaultFont'
 movebutton_label.place(x=3, y=40)
 movebutton.place(x=0,y=0)
 
+gatebutton = tk.Button(canvas.master, text ="🟩", command = lambda: toggleGateSelect(), width=1, height=1, font=('TkDefaultFont', 20),bg="white", fg="black")
+gatebutton_label = tk.Label(canvas.master, text="Set\nGates", font=('TkDefaultFont', 10), bg="white", fg="black")
+gatebutton.place(x=0,y=200)
+gatebutton_label.place(x=3, y=240)
+
+def toggleGateSelect():
+    global gateSelect, gatezones, highlightOn
+    if gateSelect:
+        gateSelect = False
+    else:
+        gateSelect = True
+        highlightOn = False
+    tupdate()
 
 
-
-barrierbutton = tk.Button(canvas.master, text ="🚫", command = toggleHighlight, width=1, height=1, font=('TkDefaultFont', 20),bg="white", fg="black")
-barrierbutton_label = tk.Label(canvas.master, text="Configure\nCourse", font=('TkDefaultFont', 10), bg="white", fg="black")
-barrierbutton.place(x=0,y=70)
-barrierbutton_label.place(x=3, y=110)
+barrierbutton = tk.Button(canvas.master, text ="📐", command = toggleHighlight, width=1, height=1, font=('TkDefaultFont', 20),bg="white", fg="black")
+barrierbutton_label = tk.Label(canvas.master, text="Set\nCourse", font=('TkDefaultFont', 10), bg="white", fg="black")
+barrierbutton.place(x=0,y=100)
+barrierbutton_label.place(x=3, y=140)
 
 barrier=[]
 
@@ -735,7 +754,7 @@ def on_canvas_click(event):
         else:
             turtlecol=-1
         if turtlerow >= 0 and turtlecol >= 0 and turtlerow < vars['grid_y'] and turtlecol < vars['grid_x']:
-            print(f"Cell clicked: column {turtlecol}, row {turtlerow}")
+            #print(f"Cell clicked: column {turtlecol}, row {turtlerow}")
             gatezones.append([turtlerow+1,turtlecol])
             tupdate()
 
@@ -750,7 +769,23 @@ def disable_space(event):
 
 movebutton.bind('<space>', disable_space)
 barrierbutton.bind('<space>', disable_space)
+def clear_all():
+    global barrierList, gatezones, enddotx, enddoty, xvar, yvar, highlightOn, gateSelect
+    barrierList = []
+    gatezones = []
+    enddotx = 0
+    enddoty = 0
+    xvar = 1
+    yvar = 0
+    highlightOn=False
+    gateSelect=False
+    tupdate()
 
+clearbutton = tk.Button(canvas.master, text ="🗑", command = clear_all, width=1, height=1, font=('TkDefaultFont', 20), bg="white", fg="black")
+clearbutton_label = tk.Label(canvas.master, text="Clear\nAll", font=('TkDefaultFont', 10), bg="white", fg="black")
+clearbutton.place(x=0,y=300)
+clearbutton_label.place(x=3, y=340)
+clearbutton.bind('<space>', disable_space)
 def on_resize(event):
     tupdate()
         
