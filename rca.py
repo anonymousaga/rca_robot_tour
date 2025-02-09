@@ -167,9 +167,34 @@ text_box.bind("<<Modified>>", modified_flag_changed)
 
 default_code = '''
 def compileCommands(commandvar):
+    commandvar = commandvar.strip().splitlines()
+    command2 = []
     try:
-        return eval(commandvar), False
-    except Exception as e:
+        for x in commandvar:
+            if x=="u":
+                command2.append((1,180))
+            elif x=="-u":
+                command2.append((1,-180))
+            elif x=="l":
+                command2.append((1,-90))
+            elif x=="r":
+                command2.append((1,90))
+            elif x=="rd":
+                command2.append((1,45))
+            elif x=="ld":
+                command2.append((1,-45))
+            elif x.startswith("sd"):
+                command2.append((0,float(x.strip("sd"))*1.414))
+            elif x.startswith("s"):
+                command2.append((0,float(x.strip("s"))))
+            elif x.startswith("t"):
+                command2.append((1,float(x.strip("t"))))
+            elif x.strip()=="":
+                pass # skip blank lines
+            else:
+                raise ValueError('command is incorrect')
+        return command2, False
+    except ValueError as e:
         return [], e
 '''
 
@@ -179,11 +204,7 @@ try:
 except FileNotFoundError:
     with open(os.path.join(__location2__,"compileFile.py"), "w") as f:
         f.write(default_code)
-    def compileCommands(commandvar):
-        try:
-            return eval(commandvar), False
-        except Exception as e:
-            return [], e
+    exec(default_code)
 
 lineWidth=2.5
 
@@ -472,7 +493,7 @@ def open_preferences():
     
 
 
-        github_link_button = ttk.Button(preferences_frame, text="Documentation/Help on Github")
+        github_link_button = ttk.Button(preferences_frame, text="📖 Documentation/Help on Github")
         github_link_button.grid(row=0, column=0, columnspan=2, sticky='ew')
         github_link_button.bind("<Button-1>", open_docs_link)
         
@@ -550,7 +571,7 @@ def open_preferences():
                 f.write(variable_entry.get('1.0','end'))
             preferences_frame.destroy()
             on_close_turtle()
-        save_prefs_button = ttk.Button(preferences_frame, text="Save Preferences And Quit", command=save_prefs)
+        save_prefs_button = ttk.Button(preferences_frame, text="💾 Save And Quit", command=save_prefs)
         save_prefs_button.grid(row=preferences_frame.grid_size()[1]+1, column=0, columnspan=2)
         
         preferences_canvas.config(yscrollincrement = 2)
