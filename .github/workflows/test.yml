@@ -8,7 +8,7 @@ permissions:
 
 jobs:
     build_linux64:
-        name: Build ubuntu binary
+        name: Build linux binary
         runs-on: ubuntu-latest
         defaults:
           run:
@@ -23,8 +23,6 @@ jobs:
     
           - name: Install dependencies
             run: |
-              sudo apt update -y
-              sudo apt install -y alien
               python -m pip install --upgrade pip
               pip install --upgrade cx_Freeze pyperclip toml
     
@@ -32,6 +30,6 @@ jobs:
             run: cxfreeze bdist_appimage
             
           - name: Upload to release
-            run: gh release upload ${{github.event.release.tag_name}} build/*.deb
+            run: gh release upload ${{github.event.release.tag_name}} build/*.appimage
             env:
               GITHUB_TOKEN: ${{ github.TOKEN }}
