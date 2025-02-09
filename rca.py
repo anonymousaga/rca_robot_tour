@@ -8,7 +8,14 @@ import _thread
 import json
 import os
 import sys
-from compileFile import *
+try:
+    from compileFile import *
+except:
+    def compileCommands(commandvar):
+        try:
+            return eval(commandvar), False
+        except Exception as e:
+            return [], e
 from tkinter import font, ttk
 from tkinter import *
 import webbrowser
@@ -26,8 +33,12 @@ except ImportError:
 
 
 if getattr(sys, 'frozen', False):
-    # The application is frozen
-    #__location__ = os.path.dirname(sys.executable)
+    __location__  = os.path.dirname(sys.executable)
+    if not os.path.isfile(os.path.join(__location__,"pyproject.toml")):
+        # The application is not frozen
+        # Change this bit to match where you store your data files:
+        __location__  = os.path.join(os.path.dirname(sys.executable),'../Resources')
+        #print(__location__)
     if sys.platform == 'win32':
         config_dir = os.path.join(os.getenv('APPDATA'), 'Robot Coaching Assistant')
     elif sys.platform == 'darwin':
@@ -36,22 +47,23 @@ if getattr(sys, 'frozen', False):
         config_dir = os.path.expanduser('~/.config/robot_coaching_assistant')
     if not os.path.exists(config_dir):
         os.makedirs(config_dir)
-    __location__ = config_dir
+    __location2__ = config_dir
 else:
     # The application is not frozen
     # Change this bit to match where you store your data files:
     __location__  = os.path.dirname(__file__)
+    __location2__=__location__
 
 commands=[]
 root=tk.Tk()
 #scale is pixel = cm 
 
 try:
-    with open(os.path.join(__location__,"config.json"), "r") as f:
+    with open(os.path.join(__location2__,"config.json"), "r") as f:
         vars = json.load(f)
 except FileNotFoundError:
     vars = {"grid_x": 5, "grid_y": 4, "lineSpeed": 6, "darkmode": "no", "cm_offset": 0}
-    with open(os.path.join(__location__,"config.json"), "w") as f:
+    with open(os.path.join(__location2__,"config.json"), "w") as f:
         json.dump(vars, f)
 
 try:
@@ -505,8 +517,20 @@ def open_preferences():
 
 
         variable_entry = UndoableEntry(preferences_frame)
-        with open(os.path.join(__location__,"compileFile.py"), "r") as f:
-            variable_entry.insert(1.0, f.read())
+        default_code = '''
+def compileCommands(commandvar):
+    try:
+        return eval(commandvar), False
+    except Exception as e:
+        return [], e
+'''
+        try:
+            with open(os.path.join(__location2__,"compileFile.py"), "r") as f:
+                variable_entry.insert(1.0, f.read())
+        except FileNotFoundError:
+            with open(os.path.join(__location2__,"compileFile.py"), "w") as f:
+                f.write(default_code)
+                variable_entry.insert(1.0, default_code)
         variable_entry.bind("<<Modified>>", modified_flag_changed_prefs)
         variable_entry.grid(row=5, column=1,columnspan=3,sticky="news")
         
@@ -517,9 +541,9 @@ def open_preferences():
             vars['grid_x'] = round(float(cols_entry.get()))
             vars['lineSpeed'] = round(float(lineSpeed_slider.get()),2)
             vars['cm_offset'] = float(cm_offset_entry.get())
-            with open(os.path.join(__location__,"config.json"), "w") as f:
+            with open(os.path.join(__location2__,"config.json"), "w") as f:
                 json.dump(vars,f)
-            with open(os.path.join(__location__,"compileFile.py"), "w") as f:
+            with open(os.path.join(__location2__,"compileFile.py"), "w") as f:
                 f.write(variable_entry.get('1.0','end'))
             preferences_frame.destroy()
             on_close_turtle()
@@ -604,8 +628,8 @@ text_box.delete('1.0')
 
 t.title("Robot Path Map")
 
-if os.path.isfile(os.path.join(__location__,"root2.conf")): 
-    with open(os.path.join(__location__,"root2.conf"), "r") as conf: 
+if os.path.isfile(os.path.join(__location2__,"root2.conf")): 
+    with open(os.path.join(__location2__,"root2.conf"), "r") as conf: 
         tsetup=conf.read().split('+')
         tsize=tsetup[0].split('x')
         t.setup(width=int(tsize[0]),height=int(tsize[1]),startx=int(tsetup[1]),starty=int(tsetup[2])) 
@@ -626,9 +650,9 @@ canvas=t.getcanvas()
 #canvas.bind("<Configure>", tupdate) # doesnt work
 
 def on_close_turtle(a=None):
-    with open(os.path.join(__location__,"root.conf"), "w") as conf: 
+    with open(os.path.join(__location2__,"root.conf"), "w") as conf: 
         conf.write(root.geometry())
-    with open(os.path.join(__location__,"root2.conf"), "w") as conf: 
+    with open(os.path.join(__location2__,"root2.conf"), "w") as conf: 
         conf.write(canvas.master.geometry())
     t.bye()
     root.destroy()
