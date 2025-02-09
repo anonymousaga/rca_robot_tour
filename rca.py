@@ -709,6 +709,12 @@ def disable_space(event):
 movebutton.bind('<space>', disable_space)
 barrierbutton.bind('<space>', disable_space)
 
+def on_resize(event):
+    tupdate()
+        
+
+canvas.bind('<Configure>', on_resize)
+
 movebutton.place(x=0,y=0)
 barrierbutton.place(x=190,y=0)
 movebutton.place(x=0,y=0)
