@@ -14,6 +14,7 @@ from tkinter import *
 import webbrowser
 from tkinter import filedialog
 from tkinter import filedialog
+from PIL import Image
 
 try:
     import pyperclip
@@ -26,12 +27,16 @@ except ImportError:
 
 if getattr(sys, 'frozen', False):
     # The application is frozen
-    __location__  = os.path.dirname(sys.executable)
-    if not os.path.isfile(os.path.join(__location__,"config.json")):
-        # The application is not frozen
-        # Change this bit to match where you store your data files:
-        __location__  = os.path.join(os.path.dirname(sys.executable),'../Resources')
-        print(__location__)
+    #__location__ = os.path.dirname(sys.executable)
+    if sys.platform == 'win32':
+        config_dir = os.path.join(os.getenv('APPDATA'), 'Robot Coaching Assistant')
+    elif sys.platform == 'darwin':
+        config_dir = os.path.expanduser('~/Library/Application Support/Robot Coaching Assistant')
+    else:  # Linux and other Unix-like
+        config_dir = os.path.expanduser('~/.config/robot_coaching_assistant')
+    if not os.path.exists(config_dir):
+        os.makedirs(config_dir)
+    __location__ = config_dir
 else:
     # The application is not frozen
     # Change this bit to match where you store your data files:
@@ -41,8 +46,14 @@ commands=[]
 root=tk.Tk()
 #scale is pixel = cm 
 
-with open(os.path.join(__location__,"config.json"), "r") as f:
-    vars = json.load(f)
+try:
+    with open(os.path.join(__location__,"config.json"), "r") as f:
+        vars = json.load(f)
+except FileNotFoundError:
+    vars = {"grid_x": 5, "grid_y": 4, "lineSpeed": 5.5, "darkmode": "no", "cm_offset": 0}
+    with open(os.path.join(__location__,"config.json"), "w") as f:
+        json.dump(vars, f)
+
 try:
     import toml
     # Read the pyproject.toml file
@@ -825,7 +836,7 @@ def save_layout():
     filename = filedialog.asksaveasfilename(
         defaultextension=".json",
         filetypes=[("JSON files", "*.json")],
-        initialfile="layout.json"
+        initialfile="RCA_layout.json"
     )
     
     if filename:
@@ -845,7 +856,7 @@ def load_layout():
             with open(filename, "r") as f:
                 layout_data = json.load(f)
                 if layout_data['grid_x'] != vars['grid_x'] or layout_data['grid_y'] != vars['grid_y']:
-                    show_error_dialog(f"Course size mismatch!\nFile is {layout_data['grid_x']}x{layout_data['grid_y']}\nCurrent size is {vars['grid_x']}x{vars['grid_y']}")
+                    show_error_dialog(f"Course size mismatch!\nFile is {layout_data['grid_y']}x{layout_data['grid_x']}\nCurrent size is {vars['grid_y']}x{vars['grid_x']}")
                     return
                     
                 xvar = layout_data['start']['x']
@@ -868,6 +879,54 @@ loadbutton_label = tk.Label(canvas.master, text="Load\nLayout", font=('TkDefault
 loadbutton.place(x=0,y=500)
 loadbutton_label.place(x=3, y=540)
 loadbutton.bind('<space>', disable_space)
+
+# Animate button
+movebutton.place(x=0,y=0)
+movebutton_label.place(x=3, y=40)
+
+# Set Course button
+barrierbutton.place(x=0,y=70)
+barrierbutton_label.place(x=3, y=110)
+
+# Set Gates button
+gatebutton.place(x=0,y=150)
+gatebutton_label.place(x=3, y=190)
+
+# Clear All button
+clearbutton.place(x=0,y=230)
+clearbutton_label.place(x=3, y=270)
+
+# Save Layout button
+savebutton.place(x=0,y=310)
+savebutton_label.place(x=3, y=350)
+
+# Load Layout button
+loadbutton.place(x=0,y=390)
+loadbutton_label.place(x=3, y=430)
+
+
+def save_screenshot():
+    filename = filedialog.asksaveasfilename(
+        defaultextension=".png",
+        filetypes=[("PNG files", "*.png")],
+        initialfile="RCA_screenshot.png"
+    )
+    if filename:
+        # Save as EPS with maximum quality
+        canvas.postscript(file=filename + ".eps", colormode='color', pagewidth=3500, pageheight=3500)
+        try:
+            img = Image.open(filename + ".eps")
+            img.save(filename, "png")
+            os.remove(filename + ".eps")
+        except ImportError:
+            show_error_dialog("PIL/Pillow not installed, saving as EPS only")
+
+screenshotbutton = tk.Button(canvas.master, text ="📷", command = save_screenshot, width=1, height=1, font=('TkDefaultFont', 20),bg="white", fg="black")
+screenshotbutton_label = tk.Label(canvas.master, text="Save\nImage", font=('TkDefaultFont', 10), bg="white", fg="black")
+screenshotbutton.place(x=0,y=470)
+screenshotbutton_label.place(x=3, y=510)
+screenshotbutton.bind('<space>', disable_space)
+
 tupdate()
 _thread.start_new_thread(t.mainloop,())
 root.mainloop()

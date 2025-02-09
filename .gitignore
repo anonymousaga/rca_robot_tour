@@ -4,3 +4,4 @@ dist
 __pycache__
 root.conf
 root2.conf
+config.json
