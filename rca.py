@@ -50,7 +50,7 @@ try:
     with open(os.path.join(__location__,"config.json"), "r") as f:
         vars = json.load(f)
 except FileNotFoundError:
-    vars = {"grid_x": 5, "grid_y": 4, "lineSpeed": 5.5, "darkmode": "no", "cm_offset": 0}
+    vars = {"grid_x": 5, "grid_y": 4, "lineSpeed": 6, "darkmode": "no", "cm_offset": 0}
     with open(os.path.join(__location__,"config.json"), "w") as f:
         json.dump(vars, f)
 
@@ -414,6 +414,7 @@ def open_preferences():
         preferences_window = tk.Toplevel(root)
         preferences_window.title("Preferences")
         preferences_window.minsize(600,420)
+        preferences_window.geometry('780x580')
         preferences_window.resizable(True, True) # make False, False to enable pop-out window on macOS
 
         preferences_scrollbar = ttk.Scrollbar(preferences_window)
@@ -586,14 +587,14 @@ buttonBox.grid(row=0,column=2, padx=20)
 big_red_label = tk.Label(buttonBox, text="", fg="red", font=("Arial",18))
 big_red_label.grid(row=1, column=0, columnspan=2)
 root.title("Robot Coaching Assistant")
-copybutton = ttk.Button(buttonBox, text ="Copy Code", command = copy_text_func)
+copybutton = ttk.Button(buttonBox, text ="📋 Copy Code", command = copy_text_func)
 copybutton.grid(row=0,column=0,sticky="en")
 if pyperclip_enable == False:
     copybutton.config(text="",state=tk.DISABLED)
 
 
 
-preferences_button = ttk.Button(buttonBox, text="Settings", command=open_preferences)
+preferences_button = ttk.Button(buttonBox,  text="⚙️ Settings", command=open_preferences)
 preferences_button.grid(row=0, column=1, sticky="en")
 
 
