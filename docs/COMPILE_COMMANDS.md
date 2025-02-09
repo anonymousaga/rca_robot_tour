@@ -20,5 +20,17 @@ Then, the interpreted commands is:
 `[(0, 100.0), (1, 90), (0, 50.0), (1, -45.0), (0, -50.0)]`
 > If you would like to directly use this interpreted format, then use [this compileCommands example](examples/compileCommands_example_1.py)
 
+
+> A [default compileCommands](examples/compileCommands_example_default.py) has been provided. The default compileCommands uses a very **human-readable format**:
+> * **sX**: Go stratight by X centimeters (e.g. s100 for 100 cm)
+> * **r**: turn right 90°
+> * **l**: turn left 90°
+> * **u**: turn 180°
+> * **tX**: turn by X°, where negative is left and positive is right
+> * <ins>**DIAGONALS:**</ins>
+>     * **sdX**: Go straight by X cm × √2 *(because the diagonal of a square is side length × √2)*
+>     * **rd**: turn right 45°
+>     * **ld**: turn left 45°
+
  &nbsp;
 Feel free to contact me at [contact@abhijeetghosh.com](mailto:contact@abhijeetghosh.com) if you need help making your `compileCommands`
