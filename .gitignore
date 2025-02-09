@@ -5,3 +5,4 @@ __pycache__
 root.conf
 root2.conf
 config.json
+compileFile.py
