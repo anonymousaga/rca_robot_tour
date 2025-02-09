@@ -165,7 +165,13 @@ def modified_flag_changed(event=None):
 text_box = UndoableEntry(root)
 text_box.bind("<<Modified>>", modified_flag_changed)
 
-
+default_code = '''
+def compileCommands(commandvar):
+    try:
+        return eval(commandvar), False
+    except Exception as e:
+        return [], e
+'''
 
 try:
     with open(os.path.join(__location2__,"compileFile.py"), "r") as f:
@@ -514,13 +520,6 @@ def open_preferences():
 
 
         variable_entry = UndoableEntry(preferences_frame)
-        default_code = '''
-def compileCommands(commandvar):
-    try:
-        return eval(commandvar), False
-    except Exception as e:
-        return [], e
-'''
         try:
             with open(os.path.join(__location2__,"compileFile.py"), "r") as f:
                 compileCommandsNew=f.read()
