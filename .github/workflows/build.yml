@@ -94,8 +94,34 @@ jobs:
             env:
               GITHUB_TOKEN: ${{ github.TOKEN }}
     build_linux64:
-        name: Build linux binary
+        name: Build linux binary x64
         runs-on: ubuntu-latest
+        defaults:
+          run:
+            shell: bash
+        steps:
+          - uses: actions/checkout@v4
+    
+          - uses: actions/setup-python@v5
+            with:
+              cache: 'pip'
+              python-version: '3.12'
+    
+          - name: Install dependencies
+            run: |
+              python -m pip install --upgrade pip
+              pip install --upgrade cx_Freeze pyperclip toml
+    
+          - name: Freeze app
+            run: cxfreeze bdist_appimage
+            
+          - name: Upload to release
+            run: gh release upload ${{github.event.release.tag_name}} dist/*.AppImage
+            env:
+              GITHUB_TOKEN: ${{ github.TOKEN }}
+    build_linuxarm64:
+        name: Build linux binary arm64
+        runs-on: ubuntu-24.04-arm
         defaults:
           run:
             shell: bash
