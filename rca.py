@@ -60,10 +60,16 @@ root=tk.Tk()
 try:
     with open(os.path.join(__location2__,"config.json"), "r") as f:
         vars = json.load(f)
-except FileNotFoundError:
-    vars = {"grid_x": 5, "grid_y": 4, "lineSpeed": 6, "cm_offset": 0}
+
+except Exception as e:
+    vars = {"grid_x": 5, "grid_y": 4, "lineSpeed": 6, "cm_offset": 0, "writeLast": True}
     with open(os.path.join(__location2__,"config.json"), "w") as f:
         json.dump(vars, f)
+
+# Clause to ensure legacy users without this in configFile are able to use the app
+if 'writeLAST' not in vars:
+    vars['writeLAST'] = True
+
 
 try:
     import toml
@@ -363,7 +369,7 @@ def tupdate(event=None):
     t.right(90)
     t.forward(17*screensSizeMultiplier)
     t.down()
-    if writeCOL != -1:
+    if (vars['writeLAST']==True) and (writeCOL != -1):
         t.pencolor(pencolor)
         t.write("LAST", align="center", font=("Arial", int(8*screensSizeMultiplier), "normal"))
     t.up()
@@ -521,8 +527,23 @@ def open_preferences():
         cols_entry.insert(0, str(vars['grid_x']))
         cm_offset_entry.insert(0, str(vars['cm_offset']))
 
+        writeLast_label = ttk.Label(preferences_frame, text="Show 'LAST' label:")
+        writeLast_label.grid(row=3, column=0, sticky="e")
+
+        writeLast_var = tk.BooleanVar()
+
+        writeLast_yes = ttk.Radiobutton(preferences_frame, text="Yes", variable=writeLast_var, value=True)
+        writeLast_yes.grid(row=3, column=1, sticky="w")
+
+        writeLast_no = ttk.Radiobutton(preferences_frame, text="No", variable=writeLast_var, value=False)
+        writeLast_no.grid(row=3, column=2, sticky="w")
+
+        writeLast_var.set(vars['writeLAST'])
+
+        
         lineSpeed_label = ttk.Label(preferences_frame, text="Robot Moving Speed:")
         lineSpeed_label.grid(row=4, column=0, sticky="e")
+
 
         lineSpeed_slider = ttk.Scale(preferences_frame, from_=1, to=10, orient="horizontal", length=400)
         lineSpeed_slider.grid(row=4, column=1,columnspan=2)
@@ -558,7 +579,7 @@ def open_preferences():
         def save_prefs():
             global vars
             vars['grid_y'] = round(float(rows_entry.get()))
-            
+            vars['writeLAST'] = writeLast_var.get()
             vars['grid_x'] = round(float(cols_entry.get()))
             vars['lineSpeed'] = round(float(lineSpeed_slider.get()),2)
             vars['cm_offset'] = float(cm_offset_entry.get())
@@ -910,12 +931,12 @@ def load_layout():
             show_error_dialog(f"Error loading layout file:\n{str(e)}")
 #load_layout()
 savebutton = tk.Button(canvas.master, text ="💾", command = save_layout, width=1, height=1, font=('TkDefaultFont', 20),bg="white", fg="black")
-savebutton_label = tk.Label(canvas.master, text="Save\nLayout", font=('TkDefaultFont', 10), bg="white", fg="black")
+savebutton_label = tk.Label(canvas.master, text="Save\nCourse", font=('TkDefaultFont', 10), bg="white", fg="black")
 savebutton.place(x=0,y=400)
 savebutton_label.place(x=3, y=440)
 savebutton.bind('<space>', disable_space)
 loadbutton = tk.Button(canvas.master, text ="📂", command = load_layout, width=1, height=1, font=('TkDefaultFont', 20),bg="white", fg="black")
-loadbutton_label = tk.Label(canvas.master, text="Load\nLayout", font=('TkDefaultFont', 10), bg="white", fg="black")
+loadbutton_label = tk.Label(canvas.master, text="Load\nCourse", font=('TkDefaultFont', 10), bg="white", fg="black")
 loadbutton.place(x=0,y=500)
 loadbutton_label.place(x=3, y=540)
 loadbutton.bind('<space>', disable_space)
