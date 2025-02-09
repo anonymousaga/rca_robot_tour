@@ -23,10 +23,6 @@ except ImportError:
 
 
 
-
-
-
-
 if getattr(sys, 'frozen', False):
     # The application is frozen
     __location__  = os.path.dirname(sys.executable)
@@ -222,16 +218,14 @@ def open_about():
     else:
         about_window.focus_force()
 
-ee=0
-
 def tupdate(event=None):
     global showRobotMoving
     global screensSizeMultiplier
-    global ee
     screen = t.Screen()
     #screen._root.lift()  # Bring window to front
     xe=t.window_width()
     ye=t.window_height()
+    t.width(1*screensSizeMultiplier)
     if xe/ye > vars['grid_x']/vars['grid_y']:
         screensSizeMultiplier = (ye/(50*vars['grid_y'])) * 0.8
     else:
@@ -240,9 +234,8 @@ def tupdate(event=None):
     t.reset()
     
     t.speed("fastest")
-    # Completely disable animation during drawing
     t.tracer(0,0)
-    #screen.delay(0)
+    screen.delay(0)
 
 
     # Draw a grid with 4 rows and 5 columns
@@ -259,18 +252,51 @@ def tupdate(event=None):
             
             # Draw the cell
             for i in range(4):
-                if i == 2 and row > 1:
-                    t.width
-                    t.color('#8F6940')
-                    t.width(5*screensSizeMultiplier)
-                else:
-                    if darkmode() == True:
-                        t.color('white')
-                    else:
-                        t.color('black')
+                if ((i == 2 and row > 1) or (i == 3 and col>0)) and highlightOn == True:
+                    t.forward(10*screensSizeMultiplier)
+                    t.color(highlightcolor)
+                    t.width(7*screensSizeMultiplier)
+                    t.forward(30*screensSizeMultiplier)
                     t.width(1*screensSizeMultiplier)
-                t.forward(50*screensSizeMultiplier)
+                    t.color(pencolor)
+                    t.forward(10*screensSizeMultiplier)
+                else:
+                    t.color(pencolor)
+                    t.width(1*screensSizeMultiplier)
+                    t.forward(50*screensSizeMultiplier)
                 t.right(90)
+    for barrier in barrierList:
+        t.up()
+        if barrier[0] == 0: # column
+            t.setheading(0)  # Reset heading to face east
+            t.goto((((barrier[1]-1)*50*screensSizeMultiplier)-(vars['grid_x']*25)*screensSizeMultiplier), (((barrier[2])*50*screensSizeMultiplier)-(vars['grid_y']*25)*screensSizeMultiplier))
+            t.forward(50*screensSizeMultiplier)
+            t.right(90)
+            t.forward(10*screensSizeMultiplier)
+            t.color(barrierColor)
+            t.width(7*screensSizeMultiplier)
+            t.down()
+            t.forward(30*screensSizeMultiplier)
+            t.up()
+            t.width(1*screensSizeMultiplier)
+            t.color(pencolor)
+            t.forward(10*screensSizeMultiplier)
+        else: # row
+            t.setheading(0)  # Reset heading to face east
+            t.goto((((barrier[1])*50*screensSizeMultiplier)-(vars['grid_x']*25)*screensSizeMultiplier), (((barrier[2]-1)*50*screensSizeMultiplier)-(vars['grid_y']*25)*screensSizeMultiplier))
+            t.forward(10*screensSizeMultiplier)
+            t.color(barrierColor)
+            t.width(7*screensSizeMultiplier)
+            t.down()
+            t.forward(30*screensSizeMultiplier)
+            t.up()
+            t.width(1*screensSizeMultiplier)
+            t.color(pencolor)
+            t.forward(10*screensSizeMultiplier)
+    t.setheading(0)  # Reset heading to face east
+    
+
+    
     movetodot(xvar,yvar)
     t.width(lineWidth*screensSizeMultiplier)
     t.pencolor('green')
@@ -302,6 +328,9 @@ def tupdate(event=None):
 
     t.color('red')
     t.up()
+    t.speed("fastest")
+    t.tracer(0,0)
+    screen.delay(0)
     t.update()
     showRobotMoving = False   
 
@@ -598,14 +627,20 @@ def on_close_turtle(a=None):
 #def fxn(x,y): 
 #    print(x,y)
 #t.Screen().onclick(fxn)
+
+### Dark Mode for MAP setup
 if darkmode() == True:
-    t.color('white')
+    pencolor="white"
+    highlightcolor="#5AA2CB"
     t.Screen().bgcolor('black')
-    t.pencolor('#888888')
 else:
-    t.color('black')
+    pencolor="black"
+    highlightcolor="#5AA2CB"
     t.Screen().bgcolor('white')  
-    t.pencolor("black")
+t.color(pencolor)
+barrierColor="red"
+barrierList=[]
+highlightOn=False
 
 
 canvas.master.minsize(500,600)
@@ -614,15 +649,65 @@ root.protocol("WM_DELETE_WINDOW", on_close_turtle)
 root.createcommand("::tk::mac::Quit", on_close_turtle)
 movebutton = ttk.Button(canvas.master, text ="Robot Moving Animation", command = robotmove_func)
 
-def add_barrier():
-    barrier = tk.Canvas(canvas.master, width=50, height=50, bg='red')
-    barrier.place(x=randint(0, canvas.master.winfo_width()-50), y=randint(0, canvas.master.winfo_height()-50))
 
 
-barrierbutton = ttk.Button(canvas.master, text ="Add Barrier", command=add_barrier)
 
 
-barrierbutton.config(command=add_barrier)
+barrier=[]
+# Add near other global variables at top
+clicked_elements = []
+
+def on_canvas_click(event):  
+    global barrierList
+    turtlecol= (event.x - canvas.winfo_width()/2)  / (25*screensSizeMultiplier)
+    turtlerow= -(event.y - canvas.winfo_height()/2) / (25*screensSizeMultiplier)
+    if highlightOn == True:
+        if (abs(turtlecol - round(turtlecol)) < 0.3) and round(turtlecol) % 2 == vars['grid_x'] % 2:
+            turtlecol=int((round(turtlecol)+vars['grid_x'])/2)
+            turtlerow=int(((turtlerow)+vars['grid_y'])/2)+1
+            if turtlerow >= 1 and turtlerow <= vars['grid_y'] and turtlecol >= 1 and turtlecol <= (vars['grid_x']-1):
+                #print("COL CLICKED")
+                #print("row ",turtlerow)
+                #print("col ",turtlecol)
+                #print("")
+                barrier = [0,turtlecol,turtlerow]
+                if barrier in barrierList:
+                    barrierList.remove(barrier)
+                else:
+                    barrierList.append(barrier)
+        elif (abs(turtlerow - round(turtlerow)) < 0.3) and round(turtlerow) % 2 == vars['grid_y'] % 2:
+            turtlerow=int((round(turtlerow)+vars['grid_y'])/2)+1
+            turtlecol=int(((turtlecol)+vars['grid_x'])/2)
+            if turtlerow >= 2 and turtlerow <= vars['grid_y'] and turtlecol >= 0 and turtlecol <= (vars['grid_x']-1):
+                #print("ROW CLICKED")
+                #print("row ",turtlerow)
+                #print("col ",turtlecol)
+                #print("")
+                barrier = [1,turtlecol,turtlerow]
+                if barrier in barrierList:
+                    barrierList.remove(barrier)
+                else:
+                    barrierList.append(barrier)
+        tupdate()
+
+# Add near bottom of file, before mainloop
+canvas.bind('<Button-1>', on_canvas_click)
+
+def toggleHighlight():
+    global highlightOn
+    if highlightOn == True:
+        highlightOn=False
+    else:
+        highlightOn=True
+    tupdate()
+barrierbutton = ttk.Button(canvas.master, text ="Add Barrier", command=toggleHighlight)
+
+def disable_space(event):
+    if event.char == ' ':
+        return 'break'
+
+movebutton.bind('<space>', disable_space)
+barrierbutton.bind('<space>', disable_space)
 
 movebutton.place(x=0,y=0)
 barrierbutton.place(x=190,y=0)
