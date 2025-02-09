@@ -14,6 +14,7 @@ A tool to simulate a robot's path for robot tour in Science Olympiad. \
 ### Settings
 * **Track Size:** size of the robot tour course. 4x4 for 2023-24, 4x5 for 2024-25
 * **Starting Dot Offset** (default: 0): How far, in cm, the icon is from the course's edge when starting. Useful when the first move is longer than expected in order to align the center of the robot with the center of the box. For example, my bot travels 32cm instead of 25cm on the first move because the dowel is 7cm in front of the center.
+* **Show 'LAST' label**: indicate that the last clicked gate zone must be entered at the end for a bonus. This can be disabled for the 2023-24 rules and enabled for the 2024-25 rules.
 * **Robot Moving Speed:** the speed of the robot moving animation
 * **compileCommands Function:** read [how to configure compileCommands](docs/COMPILE_COMMANDS.md)
 
