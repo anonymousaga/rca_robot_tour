@@ -611,6 +611,7 @@ t.color(pencolor)
 barrierColor="#AE5800"
 barrierList=[]
 highlightOn=False
+gateSelect=True
 enddotx=0
 enddoty=0
 xvar=1
@@ -689,9 +690,21 @@ def on_canvas_click(event):
             turtlerow = int(((turtlerow)+vars['grid_y'])/2)+1
             enddotx=turtlecol
             enddoty=turtlerow
-            print(f"Square center clicked at col:{turtlecol} row:{turtlerow}")
 
         tupdate()
+    elif gateSelect == True:
+        turtlerow=(((turtlerow)+vars['grid_y'])/2)
+        turtlecol=(((turtlecol)+vars['grid_x'])/2)
+        if turtlerow > 0:
+            turtlerow=int(turtlerow)
+        else:
+            turtlerow=-1
+        if turtlecol > 0:
+            turtlecol=int(turtlecol)
+        else:
+            turtlecol=-1
+        if turtlerow >= 0 and turtlecol >= 0 and turtlerow < vars['grid_y'] and turtlecol < vars['grid_x']:
+            print(f"Cell clicked: column {turtlecol}, row {turtlerow}")
 
 # Add near bottom of file, before mainloop
 canvas.bind('<Button-1>', on_canvas_click)
