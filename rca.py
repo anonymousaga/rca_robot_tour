@@ -8,14 +8,14 @@ import _thread
 import json
 import os
 import sys
-try:
-    from compileFile import *
-except:
-    def compileCommands(commandvar):
-        try:
-            return eval(commandvar), False
-        except Exception as e:
-            return [], e
+#try:
+#    from compileFile import *
+#except:
+#    def compileCommands(commandvar):
+#        try:
+#            return eval(commandvar), False
+#        except Exception as e:
+#            return [], e
 from tkinter import font, ttk
 from tkinter import *
 import webbrowser
@@ -167,6 +167,18 @@ text_box = UndoableEntry(root)
 text_box.bind("<<Modified>>", modified_flag_changed)
 
 
+
+try:
+    with open(os.path.join(__location2__,"compileFile.py"), "r") as f:
+        exec(f.read())
+except FileNotFoundError:
+    with open(os.path.join(__location2__,"compileFile.py"), "w") as f:
+        f.write(default_code)
+    def compileCommands(commandvar):
+        try:
+            return eval(commandvar), False
+        except Exception as e:
+            return [], e
 
 lineWidth=2.5
 
@@ -512,11 +524,18 @@ def compileCommands(commandvar):
 '''
         try:
             with open(os.path.join(__location2__,"compileFile.py"), "r") as f:
-                variable_entry.insert(1.0, f.read())
+                compileCommandsNew=f.read()
+                variable_entry.insert(1.0, compileCommandsNew)
+                exec(compileCommandsNew)
         except FileNotFoundError:
             with open(os.path.join(__location2__,"compileFile.py"), "w") as f:
                 f.write(default_code)
-                variable_entry.insert(1.0, default_code)
+            def compileCommands(commandvar):
+                try:
+                    return eval(commandvar), False
+                except Exception as e:
+                    return [], e
+            variable_entry.insert(1.0, default_code)
         variable_entry.bind("<<Modified>>", modified_flag_changed_prefs)
         variable_entry.grid(row=5, column=1,columnspan=3,sticky="news")
         
