@@ -116,7 +116,9 @@ jobs:
             run: cxfreeze bdist_appimage
             
           - name: Upload to release
-            run: gh release upload ${{github.event.release.tag_name}} dist/*.AppImage
+            run: |
+                mv dist/*.AppImage dist/RCAInstaller_linux_x64.AppImage
+                gh release upload ${{github.event.release.tag_name}} dist/*.AppImage
             env:
               GITHUB_TOKEN: ${{ github.TOKEN }}
     build_linuxarm64:
@@ -142,6 +144,8 @@ jobs:
             run: cxfreeze bdist_appimage
             
           - name: Upload to release
-            run: gh release upload ${{github.event.release.tag_name}} dist/*.AppImage
+            run: |
+                mv dist/*.AppImage dist/RCAInstaller_linux_arm64.AppImage
+                gh release upload ${{github.event.release.tag_name}} dist/*.AppImage
             env:
               GITHUB_TOKEN: ${{ github.TOKEN }}
