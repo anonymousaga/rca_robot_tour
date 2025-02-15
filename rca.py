@@ -288,13 +288,19 @@ def tupdate(event=None):
     xe=t.window_width()
     ye=t.window_height()
     t.width(1*screensSizeMultiplier)
-    if xe/ye > vars['grid_x']/vars['grid_y']:
-        screensSizeMultiplier = (ye/(50*vars['grid_y'])) * 0.825
+    if xe/(ye*.95) > vars['grid_x']/vars['grid_y']:
+        if displayLayoutOn == True:
+            screensSizeMultiplier = (ye/(50*vars['grid_y'])) * 0.64
+        else:
+            screensSizeMultiplier = (ye/(50*vars['grid_y'])) * 0.825
     else:
         screensSizeMultiplier = (xe/(50*vars['grid_x'])) * 0.75
     
     t.reset()
-    
+    if displayLayoutOn:
+        t.hideturtle()
+    else:
+        t.showturtle()
     t.speed("fastest")
     t.tracer(0,0)
     screen.delay(0)
@@ -630,20 +636,24 @@ def robotmove_func():
 
 def movetodot(x,y):
     t.up()
+    if displayLayoutOn == True:
+        cm_temp_offset = 0
+    else:
+        cm_temp_offset = vars['cm_offset']
     if x==0:
         x += .5 
-        x -= (vars['cm_offset']/50)
+        x -= (cm_temp_offset/50)
     elif y==0:
         y += .5  
-        y -= (vars['cm_offset']/50)
+        y -= (cm_temp_offset/50)
         t.right(90)
     elif y==vars['grid_y']+1:
         y -= .5
-        y += (vars['cm_offset']/50)
+        y += (cm_temp_offset/50)
         t.left(90)
     elif x==vars['grid_x']+1:
         x -= .5
-        x += (vars['cm_offset']/50)
+        x += (cm_temp_offset/50)
         t.right(180)
     t.goto(((50*x)-(vars['grid_x']*25)-25)*screensSizeMultiplier,((vars['grid_y']*25)+25-(50*y))*screensSizeMultiplier)
     t.down()
@@ -716,21 +726,26 @@ t.pencolor(pencolor)
 barrierColor="#AE5800"
 barrierList=[]
 gatezones=[]
-highlightOn=False
-gateSelect=False
-enddotx=0
-enddoty=0
-xvar=1
-yvar=0
+highlightOn = False
+gateSelect = False
+displayLayoutOn = False
+enddotx = 0
+enddoty = 0
+xvar = 1
+yvar = 0
 
 def toggleHighlight():
-    global highlightOn
-    global gateSelect
+    global highlightOn, displayLayoutOn, gateSelect
     if highlightOn == True:
-        highlightOn=False
+        highlightOn = False
+        barrierbutton.config(highlightbackground='black', highlightthickness=0)
     else:
-        highlightOn=True
-        gateSelect=False
+        highlightOn = True
+        barrierbutton.config(highlightbackground='red', highlightthickness=3)
+        gatebutton.config(highlightbackground='black', highlightthickness=0)
+        gateSelect = False
+        displayLayoutOn = False
+        screenshotbutton.config(highlightbackground='black', highlightthickness=0)
     tupdate()
 
 canvas.master.minsize(500,600)
@@ -748,12 +763,19 @@ gatebutton.place(x=0,y=200)
 gatebutton_label.place(x=3, y=240)
 
 def toggleGateSelect():
-    global gateSelect, gatezones, highlightOn
-    if gateSelect:
+    global gateSelect, gatezones, highlightOn, displayLayoutOn
+    if gateSelect == True:
         gateSelect = False
+        # Screenshot button border color customization
+        gatebutton.config(highlightbackground='black', highlightthickness=0)
     else:
+        # Screenshot button border color customization
+        gatebutton.config(highlightbackground='red', highlightthickness=3)
+        barrierbutton.config(highlightbackground='black', highlightthickness=0)
         gateSelect = True
         highlightOn = False
+        displayLayoutOn = False
+        screenshotbutton.config(highlightbackground='black', highlightthickness=0)
     tupdate()
 
 
@@ -762,7 +784,24 @@ barrierbutton_label = tk.Label(canvas.master, text="Set\nCourse", font=('TkDefau
 barrierbutton.place(x=0,y=100)
 barrierbutton_label.place(x=3, y=140)
 
-barrier=[]
+
+barrier = []
+
+
+def display_layout():
+    global vars, displayLayoutOn,displayLayoutOn, highlightOn, gateSelect
+    if displayLayoutOn == False:
+        displayLayoutOn = True
+        gateSelect = False
+        highlightOn = False
+        gatebutton.config(highlightbackground='black', highlightthickness=0)
+        barrierbutton.config(highlightbackground='black', highlightthickness=0)
+        screenshotbutton.config(highlightbackground='red', highlightthickness=3)
+    else:
+        displayLayoutOn = False
+        screenshotbutton.config(highlightbackground='black', highlightthickness=0)
+    tupdate()
+
 
 def on_canvas_click(event):  
     global barrierList
@@ -935,36 +974,66 @@ savebutton_label = tk.Label(canvas.master, text="Save\nCourse", font=('TkDefault
 savebutton.place(x=0,y=400)
 savebutton_label.place(x=3, y=440)
 savebutton.bind('<space>', disable_space)
+
 loadbutton = tk.Button(canvas.master, text ="📂", command = load_layout, width=1, height=1, font=('TkDefaultFont', 20),bg="white", fg="black")
 loadbutton_label = tk.Label(canvas.master, text="Load\nCourse", font=('TkDefaultFont', 10), bg="white", fg="black")
 loadbutton.place(x=0,y=500)
 loadbutton_label.place(x=3, y=540)
 loadbutton.bind('<space>', disable_space)
 
-# Animate button
-movebutton.place(x=0,y=0)
-movebutton_label.place(x=3, y=40)
+screenshotbutton = tk.Button(canvas.master, text ="📷", command = display_layout, width=1, height=1, font=('TkDefaultFont', 20),bg="white", fg="black")
+screenshotbutton_label = tk.Label(canvas.master, text="Photo\nMode", font=('TkDefaultFont', 10), bg="white", fg="black")
+screenshotbutton.bind('<space>', disable_space)
+
+
+# Reset button borders - add before screenshot button
+movebutton.config(highlightbackground='black', highlightthickness=0)
+barrierbutton.config(highlightbackground='black', highlightthickness=0) 
+gatebutton.config(highlightbackground='black', highlightthickness=0)
+clearbutton.config(highlightbackground='black', highlightthickness=0)
+savebutton.config(highlightbackground='black', highlightthickness=0)
+loadbutton.config(highlightbackground='black', highlightthickness=0)
+screenshotbutton.config(highlightbackground='black', highlightthickness=0)
+
+# Screenshot Mode button
+distanceBetweenButtons = 85
+distanceBetweenButtonAndLabel = 40
+buttonNumber = 0
+
+screenshotbutton.place(x=0,y=distanceBetweenButtons*buttonNumber)
+screenshotbutton_label.place(x=3,y=(distanceBetweenButtons*buttonNumber)+distanceBetweenButtonAndLabel)
+buttonNumber += 1
+
+
+# Shift other buttons down
+movebutton.place(x=0,y=distanceBetweenButtons*buttonNumber)
+movebutton_label.place(x=3,y=(distanceBetweenButtons*buttonNumber)+distanceBetweenButtonAndLabel)
+buttonNumber += 1
 
 # Set Course button
-barrierbutton.place(x=0,y=70)
-barrierbutton_label.place(x=3, y=110)
+barrierbutton.place(x=0,y=distanceBetweenButtons*buttonNumber)
+barrierbutton_label.place(x=3,y=(distanceBetweenButtons*buttonNumber)+distanceBetweenButtonAndLabel)
+buttonNumber += 1
 
 # Set Gates button
-gatebutton.place(x=0,y=150)
-gatebutton_label.place(x=3, y=190)
+gatebutton.place(x=0,y=distanceBetweenButtons*buttonNumber)
+gatebutton_label.place(x=3,y=(distanceBetweenButtons*buttonNumber)+distanceBetweenButtonAndLabel)
+buttonNumber += 1
 
 # Clear All button
-clearbutton.place(x=0,y=230)
-clearbutton_label.place(x=3, y=270)
+clearbutton.place(x=0,y=distanceBetweenButtons*buttonNumber)
+clearbutton_label.place(x=3,y=(distanceBetweenButtons*buttonNumber)+distanceBetweenButtonAndLabel)
+buttonNumber += 1
 
 # Save Layout button
-savebutton.place(x=0,y=310)
-savebutton_label.place(x=3, y=350)
+savebutton.place(x=0,y=distanceBetweenButtons*buttonNumber)
+savebutton_label.place(x=3,y=(distanceBetweenButtons*buttonNumber)+distanceBetweenButtonAndLabel)
+buttonNumber += 1
 
 # Load Layout button
-loadbutton.place(x=0,y=390)
-loadbutton_label.place(x=3, y=430)
-
+loadbutton.place(x=0,y=distanceBetweenButtons*buttonNumber)
+loadbutton_label.place(x=3,y=(distanceBetweenButtons*buttonNumber)+distanceBetweenButtonAndLabel)
+buttonNumber += 1
 
 
 
