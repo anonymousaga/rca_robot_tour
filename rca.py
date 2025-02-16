@@ -222,6 +222,7 @@ def open_docs_link(event=None):
 preferences_window=None
 about_window=None
 about_is_open = False
+trackTime=0
 
 class BoldLabel(tk.Label):
     def __init__(self, master=None, **kwargs):
@@ -279,7 +280,7 @@ def open_about():
         about_window.focus_force()
 
 def tupdate(event=None):
-    global showRobotMoving
+    global showRobotMoving, trackTime
     global screensSizeMultiplier
     writeROW=-1
     writeCOL=-1
@@ -415,7 +416,14 @@ def tupdate(event=None):
     t.setheading(0)  # Reset heading to face east
     
 
-    
+    # Add target time label
+    t.up()
+    if displayLayoutOn == True:
+        t.goto(0, vars['grid_y']*25*screensSizeMultiplier+22)
+        t.color('blue')
+        if trackTime != 0:
+            t.write("Target Time: "+str(int(trackTime))+"s", align="center", font=("Arial", int(17*screensSizeMultiplier), "bold"))
+        t.color('black')
     movetodot(xvar,yvar)
     t.width(lineWidth*screensSizeMultiplier)
     t.pencolor('green')
@@ -672,6 +680,35 @@ if pyperclip_enable == False:
 
 preferences_button = ttk.Button(buttonBox,  text="⚙️ Settings", command=open_preferences)
 preferences_button.grid(row=0, column=1, sticky="en")
+time_label = ttk.Label(buttonBox, text="       Target Time:")
+time_label.grid(row=0, column=2, sticky="e")
+
+def validate_int(P):
+    if P == "": return True
+    try:
+        int(P)
+        return True
+    except ValueError:
+        return False
+
+vcmd = (root.register(validate_int), '%P')
+time_entry = ttk.Entry(buttonBox, validate='key', validatecommand=vcmd, width=5)
+time_entry.grid(row=0, column=3, sticky="w")
+time_entry.insert(0, str(trackTime))
+
+def update_time(*args):
+    global trackTime
+    try:
+        if time_entry.get() == "":
+            trackTime = 0
+        else:
+            trackTime = int(time_entry.get())
+        tupdate()
+    except ValueError:
+        pass
+
+time_entry.bind('<Return>', update_time)
+time_entry.bind('<FocusOut>', update_time)
 
 
 text_box.insert('1.0', "3")
