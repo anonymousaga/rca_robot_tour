@@ -964,7 +964,8 @@ def save_layout():
         'end': {'x': enddotx, 'y': enddoty},
         'barriers': barrierList,
         'gates': gatezones,
-        'instructions': text_box.get('1.0', 'end').strip() # Add instructions from text box
+        'instructions': text_box.get('1.0', 'end').strip(), # Add instructions from text box
+        'targetTime': int(trackTime)
     }
     
     filename = filedialog.asksaveasfilename(
@@ -978,7 +979,7 @@ def save_layout():
             json.dump(layout_data, f)
 
 def load_layout():
-    global xvar, yvar, enddotx, enddoty, barrierList, gatezones
+    global xvar, yvar, enddotx, enddoty, barrierList, gatezones, trackTime
     
     filename = filedialog.askopenfilename(
         defaultextension=".json",
@@ -999,6 +1000,12 @@ def load_layout():
                 enddoty = layout_data['end']['y']
                 barrierList = layout_data['barriers']
                 gatezones = layout_data['gates']
+                try:
+                    trackTime = layout_data['targetTime']
+                except: # to deal with old files that dont have a target time saved
+                    trackTime=0
+                time_entry.delete(0, 'end')  # Clear existing value
+                time_entry.insert(0, str(trackTime))
                 # Load instructions into text box
                 text_box.delete('1.0', 'end')
                 text_box.insert('1.0', layout_data['instructions'])
