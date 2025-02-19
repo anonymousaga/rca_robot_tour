@@ -916,15 +916,19 @@ def disable_space(event):
 movebutton.bind('<space>', disable_space)
 barrierbutton.bind('<space>', disable_space)
 def clear_all():
-    global barrierList, gatezones, enddotx, enddoty, xvar, yvar, highlightOn, gateSelect
+    global barrierList, gatezones, enddotx, enddoty, xvar, yvar, highlightOn, gateSelect, displayLayoutOn
     barrierList = []
     gatezones = []
     enddotx = 0
     enddoty = 0
     xvar = 1
     yvar = 0
-    highlightOn=False
-    gateSelect=False
+    displayLayoutOn = False
+    gateSelect = False
+    highlightOn = False
+    gatebutton.config(highlightbackground='black', highlightthickness=0)
+    barrierbutton.config(highlightbackground='black', highlightthickness=0)
+    screenshotbutton.config(highlightbackground='black', highlightthickness=0)
     tupdate()
 
 clearbutton = tk.Button(canvas.master, text ="🗑", command = clear_all, width=1, height=1, font=('TkDefaultFont', 20), bg="white", fg="black")
