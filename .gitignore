@@ -6,3 +6,4 @@ root.conf
 root2.conf
 config.json
 compileFile.py
+*.eps
