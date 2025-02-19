@@ -8,6 +8,7 @@ A tool to simulate a robot's path for robot tour in Science Olympiad. \
   <img src="docs/selector_grid.jpg" width="350"/>
 * Add gates with the `Set Gates` button. Make sure to click on the gate zones **in order**, as the last gate clicked is marked as the last zone.
 * Paste in or type in your robot's movements, and the path will show up!
+* Add the target time on the main window, and then click `Photo Mode` in the course to take a screenshot of the course, with target time.
 * Click `Robot Moving Animation` to get an animation of the path
 * Save and load the course (and robot code) with the `Save Course` and `Load Course` buttons.
 
