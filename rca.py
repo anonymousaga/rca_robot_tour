@@ -347,7 +347,7 @@ def tupdate(event=None):
                 elif ((i == 2 and row == 1) or (i == 3 and col == 0) or (i == 1 and col == (vars['grid_x']-1)) or (i == 0 and row == vars['grid_y'])) and highlightOn == True:
                     t.forward(25*screensSizeMultiplier)
                     t.pencolor(highlightcolorStart)
-                    t.dot(10*screensSizeMultiplier)
+                    t.dot(8*screensSizeMultiplier)
                     t.pencolor(pencolor)
                     t.forward(25*screensSizeMultiplier)
                 else:
@@ -439,9 +439,9 @@ def tupdate(event=None):
     movetodot(xvar,yvar,includeoffset=False)
     t.width(lineWidth*screensSizeMultiplier)
     t.pencolor('green')
-    t.dot(lineWidth*2.5*screensSizeMultiplier)
+    t.dot(8*screensSizeMultiplier)
+    t.setheading(0)
     movetodot(xvar,yvar)
-    t.left(90)
     size = t.turtlesize()
     increase = (screensSizeMultiplier*.6 * num for num in size)
     t.turtlesize(*increase)
@@ -662,6 +662,7 @@ def movetodot(x,y,includeoffset=True):
         cm_temp_offset = 0
     else:
         cm_temp_offset = vars['cm_offset']
+    
     if x==0:
         x += .5 
         x -= (cm_temp_offset/50)
