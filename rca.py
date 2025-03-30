@@ -284,6 +284,7 @@ def tupdate(event=None):
     global screensSizeMultiplier
     writeROW=-1
     writeCOL=-1
+    gatezonezz = False
     screen = t.Screen()
     #screen._root.lift()  # Bring window to front
     xe=t.window_width()
@@ -322,6 +323,7 @@ def tupdate(event=None):
             
             for index,zone in enumerate(gatezones):
                 if row==zone[0] and col==zone[1]:
+                    gatezonezz = True
                     # set the fillcolor 
                     t.fillcolor(highlightcolorGate) 
                     # start the filling color 
@@ -329,6 +331,8 @@ def tupdate(event=None):
                     if index == len(gatezones)-1:
                         writeROW=row
                         writeCOL=col
+                else:
+                    gatezonezz = False
 
             # Draw the cell
             for i in range(4):
