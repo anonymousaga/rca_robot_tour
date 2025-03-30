@@ -145,7 +145,7 @@ else:
 
 
 
-
+alphabetarray=['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 
 
 # setting the windows size
@@ -376,14 +376,22 @@ def tupdate(event=None):
                 
 
     t.up()
-    t.goto(((((50*writeCOL)+25)*screensSizeMultiplier)-(vars['grid_x']*25)*screensSizeMultiplier), ((50*writeROW*screensSizeMultiplier)-(vars['grid_y']*25)*screensSizeMultiplier))
-    t.right(90)
-    t.forward(17*screensSizeMultiplier)
-    t.down()
-    if (vars['writeLAST']==True) and (writeCOL != -1):
+    for index,zone in enumerate(gatezones):
+        t.goto(((((50*zone[1])+25)*screensSizeMultiplier)-(vars['grid_x']*25)*screensSizeMultiplier), ((50*zone[0]*screensSizeMultiplier)-(vars['grid_y']*25)*screensSizeMultiplier))
+        t.right(90)
         t.pencolor(pencolor)
-        t.write("LAST", align="center", font=("Arial", int(8*screensSizeMultiplier), "normal"))
-    t.up()
+        t.forward(16*screensSizeMultiplier)
+        if (vars['writeLAST']==True) and (writeCOL != -1) and (index == len(gatezones)-1):
+            t.down()
+            t.write("LAST", align="center", font=("Arial", int(8*screensSizeMultiplier), "normal"))
+            t.up()
+        t.forward(15*screensSizeMultiplier) # Move a bit to write the LAST label
+
+        t.down()
+        t.write(alphabetarray[index%26], align="center", font=("Arial", int(8*screensSizeMultiplier), "normal"))
+        t.up()
+
+        t.left(90)
     t.right(180)
     t.forward(17*screensSizeMultiplier)
     t.left(90)
