@@ -424,10 +424,12 @@ def tupdate(event=None):
         if trackTime != 0:
             t.write("Target Time: "+str(int(trackTime))+"s", align="center", font=("Arial", int(17*screensSizeMultiplier), "bold"))
         t.color('black')
-    movetodot(xvar,yvar)
+    movetodot(xvar,yvar,includeoffset=False)
     t.width(lineWidth*screensSizeMultiplier)
     t.pencolor('green')
     t.dot(lineWidth*2.5*screensSizeMultiplier)
+    movetodot(xvar,yvar)
+    t.left(90)
     size = t.turtlesize()
     increase = (screensSizeMultiplier*.6 * num for num in size)
     t.turtlesize(*increase)
@@ -439,17 +441,17 @@ def tupdate(event=None):
     t.down()
     
 
-
-    for index, command in enumerate(commands):
-        t.pencolor(colorPallete[index % len(colorPallete)][0], colorPallete[index % len(colorPallete)][1], colorPallete[index % len(colorPallete)][2])
-        #t.pencolor(randint(0,90)/120,randint(0,90)/120,randint(0,90)/120)
-        if command[0] == 0: #straight moves
-            t.forward(command[1]*screensSizeMultiplier)
-        elif command[0] == 1: #turn moves
-            if command[1] < 0:
-                t.left(command[1]*-1)
-            else:
-                t.right(command[1])
+    if displayLayoutOn == False:
+        for index, command in enumerate(commands):
+            t.pencolor(colorPallete[index % len(colorPallete)][0], colorPallete[index % len(colorPallete)][1], colorPallete[index % len(colorPallete)][2])
+            #t.pencolor(randint(0,90)/120,randint(0,90)/120,randint(0,90)/120)
+            if command[0] == 0: #straight moves
+                t.forward(command[1]*screensSizeMultiplier)
+            elif command[0] == 1: #turn moves
+                if command[1] < 0:
+                    t.left(command[1]*-1)
+                else:
+                    t.right(command[1])
 
     t.color('red')
     t.up()
@@ -642,9 +644,9 @@ def robotmove_func():
     tupdate()
 
 
-def movetodot(x,y):
+def movetodot(x,y,includeoffset=True):
     t.up()
-    if displayLayoutOn == True:
+    if displayLayoutOn == True or includeoffset == False:
         cm_temp_offset = 0
     else:
         cm_temp_offset = vars['cm_offset']
@@ -813,6 +815,7 @@ def toggleGateSelect():
         highlightOn = False
         displayLayoutOn = False
         screenshotbutton.config(highlightbackground='black', highlightthickness=0)
+        gatezones = []
     tupdate()
 
 
@@ -931,11 +934,11 @@ def clear_all():
     screenshotbutton.config(highlightbackground='black', highlightthickness=0)
     tupdate()
 
-clearbutton = tk.Button(canvas.master, text ="🗑", command = clear_all, width=1, height=1, font=('TkDefaultFont', 20), bg="white", fg="black")
-clearbutton_label = tk.Label(canvas.master, text="Clear\nAll", font=('TkDefaultFont', 10), bg="white", fg="black")
-clearbutton.place(x=0,y=300)
-clearbutton_label.place(x=3, y=340)
-clearbutton.bind('<space>', disable_space)
+#clearbutton = tk.Button(canvas.master, text ="🗑", command = clear_all, width=1, height=1, font=('TkDefaultFont', 20), bg="white", fg="black")
+#clearbutton_label = tk.Label(canvas.master, text="Clear\nAll", font=('TkDefaultFont', 10), bg="white", fg="black")
+#clearbutton.place(x=0,y=300)
+#clearbutton_label.place(x=3, y=340)
+#clearbutton.bind('<space>', disable_space)
 def on_resize(event):
     tupdate()
         
@@ -1038,7 +1041,7 @@ screenshotbutton.bind('<space>', disable_space)
 movebutton.config(highlightbackground='black', highlightthickness=0)
 barrierbutton.config(highlightbackground='black', highlightthickness=0) 
 gatebutton.config(highlightbackground='black', highlightthickness=0)
-clearbutton.config(highlightbackground='black', highlightthickness=0)
+#clearbutton.config(highlightbackground='black', highlightthickness=0)
 savebutton.config(highlightbackground='black', highlightthickness=0)
 loadbutton.config(highlightbackground='black', highlightthickness=0)
 screenshotbutton.config(highlightbackground='black', highlightthickness=0)
@@ -1068,10 +1071,10 @@ gatebutton.place(x=0,y=distanceBetweenButtons*buttonNumber)
 gatebutton_label.place(x=3,y=(distanceBetweenButtons*buttonNumber)+distanceBetweenButtonAndLabel)
 buttonNumber += 1
 
-# Clear All button
-clearbutton.place(x=0,y=distanceBetweenButtons*buttonNumber)
-clearbutton_label.place(x=3,y=(distanceBetweenButtons*buttonNumber)+distanceBetweenButtonAndLabel)
-buttonNumber += 1
+## Clear All button
+#clearbutton.place(x=0,y=distanceBetweenButtons*buttonNumber)
+#clearbutton_label.place(x=3,y=(distanceBetweenButtons*buttonNumber)+distanceBetweenButtonAndLabel)
+#buttonNumber += 1
 
 # Save Layout button
 savebutton.place(x=0,y=distanceBetweenButtons*buttonNumber)
