@@ -917,8 +917,9 @@ def on_canvas_click(event):
             turtlecol=-1
         if turtlerow >= 0 and turtlecol >= 0 and turtlerow < vars['grid_y'] and turtlecol < vars['grid_x']:
             #print(f"Cell clicked: column {turtlecol}, row {turtlerow}")
-            gatezones.append([turtlerow+1,turtlecol])
-            tupdate()
+            if [turtlerow+1,turtlecol] not in gatezones:
+                gatezones.append([turtlerow+1,turtlecol])
+                tupdate()
 
 # Add near bottom of file, before mainloop
 canvas.bind('<Button-1>', on_canvas_click)
