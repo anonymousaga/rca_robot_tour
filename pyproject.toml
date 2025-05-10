@@ -1,6 +1,6 @@
 [project]
 name = "rca"
-version = "1.2.1"
+version = "1.2.4"
 description = "Robot Coaching Assistant for Science Olympiad"
 
 [tool.cxfreeze]
