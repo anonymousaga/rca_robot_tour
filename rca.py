@@ -1026,6 +1026,15 @@ def load_layout_subfunc(filename):
             show_error_dialog(f"Error loading layout file:\n{str(e)}")
 
 
+# Handle command line arguments
+if len(sys.argv) > 1:
+    try:
+        filepath = sys.argv[1]
+        load_layout_subfunc(filepath)
+    except Exception as e:
+        show_error_dialog(f"Error loading layout file:\n{str(e)}")
+        pass
+
 
 def load_layout():
     filename = filedialog.askopenfilename(
