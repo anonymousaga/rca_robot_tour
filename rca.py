@@ -1039,7 +1039,7 @@ if len(sys.argv) > 1:
 def load_layout():
     filename = filedialog.askopenfilename(
         defaultextension=".rca",
-        filetypes=[("JSON files", "*.json"),("RCA files", "*.rca")]
+        filetypes=[("RCA files", "*.rca"),("JSON files", "*.json")]
     )
     load_layout_subfunc(filename)
 
