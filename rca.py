@@ -742,10 +742,6 @@ else:
     t.setup(width=800,height=800,startx=200,starty=0)
 
 
-preferences_is_open = False
-root.createcommand('tkAboutDialog',open_about) #set about menu
-root.createcommand('tk::mac::ShowPreferences',open_preferences) #set preferences menu
-root.createcommand('tk::mac::ShowHelp',open_docs_link) #set help menu
 
 
 
@@ -977,7 +973,7 @@ def show_error_dialog(message):
 
 def save_layout():
     global vars
-    
+
     layout_data = {
         'grid_x': vars['grid_x'],
         'grid_y': vars['grid_y'],
@@ -990,22 +986,17 @@ def save_layout():
     }
     
     filename = filedialog.asksaveasfilename(
-        defaultextension=".json",
-        filetypes=[("JSON files", "*.json")],
-        initialfile="RCA_layout.json"
+        defaultextension=".rca",
+        filetypes=[("RCA JSON file", "*.rca"),("Plain JSON file", "*.json"),("TXT file", "*.txt")],
+        initialfile="layout_json"
     )
     
     if filename:
         with open(filename, "w") as f:
             json.dump(layout_data, f)
 
-def load_layout():
+def load_layout_subfunc(filename):
     global xvar, yvar, enddotx, enddoty, barrierList, gatezones, trackTime
-    
-    filename = filedialog.askopenfilename(
-        defaultextension=".json",
-        filetypes=[("JSON files", "*.json")]
-    )
     
     if filename:
         try:
@@ -1033,7 +1024,60 @@ def load_layout():
                 tupdate()
         except Exception as e:
             show_error_dialog(f"Error loading layout file:\n{str(e)}")
-#load_layout()
+
+
+
+def load_layout():
+    filename = filedialog.askopenfilename(
+        defaultextension=".rca",
+        filetypes=[("JSON files", "*.json"),("RCA files", "*.rca")]
+    )
+    load_layout_subfunc(filename)
+
+
+preferences_is_open = False
+root.createcommand('tkAboutDialog',open_about) #set about menu
+
+
+if sys.platform == 'darwin':
+    root.createcommand('tk::mac::ShowPreferences',open_preferences) #set preferences menu
+    root.createcommand('tk::mac::ShowHelp',open_docs_link) 
+    canvas.master.createcommand('tk::mac::ShowPreferences',open_preferences) #set preferences menu
+    canvas.master.createcommand('tk::mac::ShowHelp',open_docs_link)
+    # Create menu
+    menubar = tk.Menu(root)
+    root.config(menu=menubar)
+    
+    # Create menu for turtle window
+    turtle_menubar = tk.Menu(canvas.master)
+    canvas.master.config(menu=turtle_menubar)
+    
+    # Create File menu for turtle window
+    turtle_filemenu = tk.Menu(turtle_menubar, tearoff=0)
+    turtle_menubar.add_cascade(label="File", menu=turtle_filemenu)
+    turtle_filemenu.add_command(label="Save Course", command=save_layout, accelerator="Command+S")
+    turtle_filemenu.add_command(label="Load Course", command=load_layout) 
+    turtle_filemenu.add_separator()
+    turtle_filemenu.add_command(label="Exit", command=root.quit, accelerator="Command+W")
+
+    # Create File menu
+    filemenu = tk.Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="File", menu=filemenu)
+    filemenu.add_command(label="Save Course", command=save_layout, accelerator="Command+S")
+    filemenu.add_command(label="Load Course", command=load_layout)
+    filemenu.add_separator()
+    filemenu.add_command(label="Exit", command=root.quit, accelerator="Command+W")
+
+    # Bind Command-W to quit for both windows
+    root.bind('<Command-w>', lambda e: root.quit())
+    canvas.master.bind('<Command-w>', lambda e: root.quit())
+    root.bind('<Command-s>', lambda e: save_layout())
+    root.bind('<Control-s>', lambda e: save_layout())
+    canvas.master.bind('<Command-s>', lambda e: save_layout()) 
+    canvas.master.bind('<Control-s>', lambda e: save_layout())
+
+    
+
 savebutton = tk.Button(canvas.master, text ="💾", command = save_layout, width=1, height=1, font=('TkDefaultFont', 20),bg="white", fg="black")
 savebutton_label = tk.Label(canvas.master, text="Save\nCourse", font=('TkDefaultFont', 10), bg="white", fg="black")
 savebutton.place(x=0,y=400)
