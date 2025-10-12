@@ -817,6 +817,7 @@ xvar = 1
 yvar = 0
 def toggleHighlight():
     global highlightOn, displayLayoutOn, gateSelect, bottleSelect
+    mark_unsaved()
     if highlightOn == True:
         highlightOn = False
         barrierbutton.config(highlightbackground='black', highlightthickness=0)
@@ -847,6 +848,7 @@ bottlebutton_label = tk.Label(canvas.master, text="Set\nBottles", font=('TkDefau
 
 def toggleBottleSelect():
     global bottleSelect, gateSelect, highlightOn, displayLayoutOn, gatezones
+    mark_unsaved()
     if bottleSelect:
         bottleSelect = False
         bottlebutton.config(highlightbackground='black', highlightthickness=0)
@@ -865,6 +867,7 @@ def toggleBottleSelect():
 
 def toggleGateSelect():
     global gateSelect, gatezones, highlightOn, displayLayoutOn, bottleSelect
+    mark_unsaved()
     if gateSelect == True:
         gateSelect = False
         gatebutton.config(highlightbackground='black', highlightthickness=0)
