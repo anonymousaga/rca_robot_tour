@@ -158,6 +158,10 @@ Grid.rowconfigure(root,1, weight=1)
 
 
 def modified_flag_changed(event=None):
+    try: # this command is defined before mark_unsaved
+        mark_unsaved()
+    except:
+        pass
     if text_box.edit_modified():
         read_commandstk()
         text_box.edit_modified(False)
@@ -1157,7 +1161,6 @@ def load_layout():
     load_layout_subfunc(filename)
 
 # Mark unsaved on any change
-text_box.bind("<<Modified>>", mark_unsaved)
 time_entry.bind('<KeyRelease>', mark_unsaved)
 # You may want to bind other widgets as needed
 
@@ -1170,14 +1173,6 @@ if sys.platform == 'darwin':
     root.createcommand('tk::mac::ShowHelp',open_docs_link)
     canvas.master.createcommand('tk::mac::ShowPreferences',open_preferences)
     canvas.master.createcommand('tk::mac::ShowHelp',open_docs_link)
-    # Menus as before, but update Exit command:
-    # ...
-    # Replace all root.quit with on_close_turtle
-    # Example:
-    # filemenu.add_command(label="Exit", command=on_close_turtle, accelerator="Command+W")
-    # turtle_filemenu.add_command(label="Exit", command=on_close_turtle, accelerator="Command+W")
-    # root.bind('<Command-w>', lambda e: on_close_turtle())
-    # canvas.master.bind('<Command-w>', lambda e: on_close_turtle())
 else:
     # For Windows/Linux, also override quit
     root.protocol("WM_DELETE_WINDOW", on_close_turtle)
@@ -1187,8 +1182,6 @@ else:
 def save_layout_as():
     save_layout(save_as=True)
 
-# Example: add Save As to menu if you want
-# filemenu.add_command(label="Save Course As...", command=save_layout_as)
 
 
 def load_layout_subfunc(filename):
@@ -1273,6 +1266,8 @@ if sys.platform == 'darwin':
     filemenu = tk.Menu(menubar, tearoff=0)
     menubar.add_cascade(label="File", menu=filemenu)
     filemenu.add_command(label="Save Course", command=save_layout, accelerator="Command+S")
+    # Example: add Save As to menu if you want
+    filemenu.add_command(label="Save Course As...", command=save_layout_as)
     filemenu.add_command(label="Load Course", command=load_layout)
     filemenu.add_separator()
     filemenu.add_command(label="Exit", command=on_close_turtle, accelerator="Command+W")
