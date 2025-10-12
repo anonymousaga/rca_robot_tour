@@ -625,11 +625,7 @@ def open_preferences():
         except FileNotFoundError:
             with open(os.path.join(__location2__,"compileFile.py"), "w") as f:
                 f.write(default_code)
-            def compileCommands(commandvar):
-                try:
-                    return eval(commandvar), False
-                except Exception as e:
-                    return [], e
+            exec(default_code)
             variable_entry.insert(1.0, default_code)
         variable_entry.bind("<<Modified>>", modified_flag_changed_prefs)
         variable_entry.grid(row=5, column=1,columnspan=3,sticky="news")
@@ -1053,8 +1049,20 @@ def show_error_dialog(message):
     error_window.grab_set()
     error_window.wait_window()
 
-def save_layout():
-    global vars
+# Track the current layout file path
+current_layout_file = None
+layout_saved = True
+
+def mark_unsaved(event=None):
+    global layout_saved
+    layout_saved = False
+
+def mark_saved():
+    global layout_saved
+    layout_saved = True
+
+def save_layout(save_as=False):
+    global vars, current_layout_file, layout_saved
 
     layout_data = {
         'grid_x': vars['grid_x'],
@@ -1064,19 +1072,124 @@ def save_layout():
         'barriers': barrierList,
         'gates': gatezones,
         'bottles': bottlePlaces,
-        'instructions': text_box.get('1.0', 'end').strip(), # Add instructions from text box
+        'instructions': text_box.get('1.0', 'end').strip(),
         'targetTime': int(trackTime)
     }
-    
-    filename = filedialog.asksaveasfilename(
-        defaultextension=".rca",
-        filetypes=[("RCA JSON file", "*.rca"),("Plain JSON file", "*.json"),("TXT file", "*.txt")],
-        initialfile="layout_json"
-    )
-    
+
+    if save_as or not current_layout_file:
+        filename = filedialog.asksaveasfilename(
+            defaultextension=".rca",
+            filetypes=[("RCA JSON file", "*.rca"),("Plain JSON file", "*.json"),("TXT file", "*.txt")],
+            initialfile="layout_json"
+        )
+        if filename:
+            current_layout_file = filename
+        else:
+            return False
+    else:
+        filename = current_layout_file
+
     if filename:
         with open(filename, "w") as f:
             json.dump(layout_data, f)
+        mark_saved()
+        return True
+    return False
+
+def ask_save_if_needed():
+    if not layout_saved:
+        result = tk.messagebox.askyesnocancel("Unsaved Changes", "You have unsaved changes. Save before quitting?")
+        if result is None:
+            return False  # Cancel
+        elif result:
+            if not save_layout():
+                return False  # Save cancelled
+    return True
+
+def on_close_turtle(a=None):
+    if not ask_save_if_needed():
+        return
+    with open(os.path.join(__location2__,"root.conf"), "w") as conf: 
+        conf.write(root.geometry())
+    with open(os.path.join(__location2__,"root2.conf"), "w") as conf: 
+        conf.write(canvas.master.geometry())
+    t.bye()
+    root.destroy()
+
+def load_layout_subfunc(filename):
+    global xvar, yvar, enddotx, enddoty, barrierList, gatezones, bottlePlaces, trackTime, current_layout_file
+    if filename:
+        try:
+            with open(filename, "r") as f:
+                layout_data = json.load(f)
+                if layout_data['grid_x'] != vars['grid_x'] or layout_data['grid_y'] != vars['grid_y']:
+                    show_error_dialog(f"Course size mismatch!\nFile is {layout_data['grid_y']}x{layout_data['grid_x']}\nCurrent size is {vars['grid_y']}x{vars['grid_x']}")
+                    return
+                xvar = layout_data['start']['x']
+                yvar = layout_data['start']['y']
+                enddotx = layout_data['end']['x']
+                enddoty = layout_data['end']['y']
+                try:
+                    bottlePlaces = layout_data['bottles']
+                except:
+                    bottlePlaces = []
+                barrierList = layout_data['barriers']
+                gatezones = layout_data['gates']
+                try:
+                    trackTime = layout_data['targetTime']
+                except:
+                    trackTime=0
+                time_entry.delete(0, 'end')
+                time_entry.insert(0, str(trackTime))
+                text_box.delete('1.0', 'end')
+                text_box.insert('1.0', layout_data['instructions'])
+                current_layout_file = filename
+                mark_saved()
+                tupdate()
+        except Exception as e:
+            show_error_dialog(f"Error loading layout file:\n{str(e)}")
+
+def load_layout():
+    filename = filedialog.askopenfilename(
+        defaultextension=".rca",
+        filetypes=[("RCA files", "*.rca"),("JSON files", "*.json")]
+    )
+    load_layout_subfunc(filename)
+
+# Mark unsaved on any change
+text_box.bind("<<Modified>>", mark_unsaved)
+time_entry.bind('<KeyRelease>', mark_unsaved)
+# You may want to bind other widgets as needed
+
+# Override quit/close for all platforms
+root.protocol("WM_DELETE_WINDOW", on_close_turtle)
+canvas.master.protocol("WM_DELETE_WINDOW", on_close_turtle)
+root.createcommand("::tk::mac::Quit", on_close_turtle)
+if sys.platform == 'darwin':
+    root.createcommand('tk::mac::ShowPreferences',open_preferences)
+    root.createcommand('tk::mac::ShowHelp',open_docs_link)
+    canvas.master.createcommand('tk::mac::ShowPreferences',open_preferences)
+    canvas.master.createcommand('tk::mac::ShowHelp',open_docs_link)
+    # Menus as before, but update Exit command:
+    # ...
+    # Replace all root.quit with on_close_turtle
+    # Example:
+    # filemenu.add_command(label="Exit", command=on_close_turtle, accelerator="Command+W")
+    # turtle_filemenu.add_command(label="Exit", command=on_close_turtle, accelerator="Command+W")
+    # root.bind('<Command-w>', lambda e: on_close_turtle())
+    # canvas.master.bind('<Command-w>', lambda e: on_close_turtle())
+else:
+    # For Windows/Linux, also override quit
+    root.protocol("WM_DELETE_WINDOW", on_close_turtle)
+    canvas.master.protocol("WM_DELETE_WINDOW", on_close_turtle)
+
+# Add Save As support (optional)
+def save_layout_as():
+    save_layout(save_as=True)
+
+# Example: add Save As to menu if you want
+# filemenu.add_command(label="Save Course As...", command=save_layout_as)
+
 
 def load_layout_subfunc(filename):
     global xvar, yvar, enddotx, enddoty, barrierList, gatezones, bottlePlaces, trackTime
@@ -1154,7 +1267,7 @@ if sys.platform == 'darwin':
     turtle_filemenu.add_command(label="Save Course", command=save_layout, accelerator="Command+S")
     turtle_filemenu.add_command(label="Load Course", command=load_layout) 
     turtle_filemenu.add_separator()
-    turtle_filemenu.add_command(label="Exit", command=root.quit, accelerator="Command+W")
+    turtle_filemenu.add_command(label="Exit", command=on_close_turtle, accelerator="Command+W")
 
     # Create File menu
     filemenu = tk.Menu(menubar, tearoff=0)
@@ -1162,11 +1275,11 @@ if sys.platform == 'darwin':
     filemenu.add_command(label="Save Course", command=save_layout, accelerator="Command+S")
     filemenu.add_command(label="Load Course", command=load_layout)
     filemenu.add_separator()
-    filemenu.add_command(label="Exit", command=root.quit, accelerator="Command+W")
+    filemenu.add_command(label="Exit", command=on_close_turtle, accelerator="Command+W")
 
     # Bind Command-W to quit for both windows
-    root.bind('<Command-w>', lambda e: root.quit())
-    canvas.master.bind('<Command-w>', lambda e: root.quit())
+    root.bind('<Command-w>', lambda e: on_close_turtle())
+    canvas.master.bind('<Command-w>', lambda e: on_close_turtle())
     root.bind('<Command-s>', lambda e: save_layout())
     root.bind('<Control-s>', lambda e: save_layout())
     canvas.master.bind('<Command-s>', lambda e: save_layout()) 
