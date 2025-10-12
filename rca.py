@@ -861,7 +861,6 @@ def toggleBottleSelect():
         gatebutton.config(highlightbackground='black', highlightthickness=0)
         barrierbutton.config(highlightbackground='black', highlightthickness=0)
         screenshotbutton.config(highlightbackground='black', highlightthickness=0)
-        gatezones = []
     tupdate()
 
 
