@@ -34,7 +34,10 @@ A tool to simulate a robot's path for robot tour in Science Olympiad. \
     ````
     xattr -rd com.apple.quarantine /Applications/Robot\ Coaching\ Assistant.app
     ````
-
+- **Linux:** By default, the AppImage is not executable. This can be fixed by running this command in terminal:
+    ````
+    chmod +x '<PATH>/RCAInstaller_linux_<ARCH>.AppImage'
+    ````
 
 
 
