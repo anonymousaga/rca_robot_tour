@@ -1141,10 +1141,11 @@ def load_layout_subfunc(filename):
                 gatezones = layout_data['gates']
                 try:
                     trackTime = layout_data['targetTime']
-                except:
+                except: # to deal with old files that dont have a target time saved
                     trackTime=0
-                time_entry.delete(0, 'end')
+                time_entry.delete(0, 'end')  # Clear existing value
                 time_entry.insert(0, str(trackTime))
+                # Load instructions into text box
                 text_box.delete('1.0', 'end')
                 text_box.insert('1.0', layout_data['instructions'])
                 current_layout_file = filename
@@ -1183,40 +1184,6 @@ def save_layout_as():
     save_layout(save_as=True)
 
 
-
-def load_layout_subfunc(filename):
-    global xvar, yvar, enddotx, enddoty, barrierList, gatezones, bottlePlaces, trackTime
-    
-    if filename:
-        try:
-            with open(filename, "r") as f:
-                layout_data = json.load(f)
-                if layout_data['grid_x'] != vars['grid_x'] or layout_data['grid_y'] != vars['grid_y']:
-                    show_error_dialog(f"Course size mismatch!\nFile is {layout_data['grid_y']}x{layout_data['grid_x']}\nCurrent size is {vars['grid_y']}x{vars['grid_x']}")
-                    return
-                    
-                xvar = layout_data['start']['x']
-                yvar = layout_data['start']['y']
-                enddotx = layout_data['end']['x']
-                enddoty = layout_data['end']['y']
-                try:
-                    bottlePlaces = layout_data['bottles']
-                except:
-                    bottlePlaces = []
-                barrierList = layout_data['barriers']
-                gatezones = layout_data['gates']
-                try:
-                    trackTime = layout_data['targetTime']
-                except: # to deal with old files that dont have a target time saved
-                    trackTime=0
-                time_entry.delete(0, 'end')  # Clear existing value
-                time_entry.insert(0, str(trackTime))
-                # Load instructions into text box
-                text_box.delete('1.0', 'end')
-                text_box.insert('1.0', layout_data['instructions'])
-                tupdate()
-        except Exception as e:
-            show_error_dialog(f"Error loading layout file:\n{str(e)}")
 
 
 # Handle command line arguments
@@ -1258,6 +1225,7 @@ if sys.platform == 'darwin':
     turtle_filemenu = tk.Menu(turtle_menubar, tearoff=0)
     turtle_menubar.add_cascade(label="File", menu=turtle_filemenu)
     turtle_filemenu.add_command(label="Save Course", command=save_layout, accelerator="Command+S")
+    turtle_filemenu.add_command(label="Save Course As...", command=save_layout_as)
     turtle_filemenu.add_command(label="Load Course", command=load_layout) 
     turtle_filemenu.add_separator()
     turtle_filemenu.add_command(label="Exit", command=on_close_turtle, accelerator="Command+W")
