@@ -392,11 +392,7 @@ def tupdate(event=None):
         t.up()
 
         t.left(90)
-    t.right(180)
-    t.forward(17*screensSizeMultiplier)
-    t.left(90)
-    t.forward(25*screensSizeMultiplier)
-    t.setheading(0)
+        
     for barrier in barrierList:
         t.up()
         if barrier[0] == 0: # column
@@ -425,6 +421,40 @@ def tupdate(event=None):
             t.width(1*screensSizeMultiplier)
             t.pencolor(pencolor)
             t.forward(10*screensSizeMultiplier)
+
+    t.setheading(90) 
+
+    if bottleSelect == True:
+        # Show highlight for all possible bottle positions, not just existing ones
+        possible_bottle_positions = []
+        # Top inner edge centers (exclude outermost row)
+        for col in range(vars['grid_x']):
+            for row in range(1, vars['grid_y']):
+                possible_bottle_positions.append([row, col + 0.5])
+        # Left inner edge centers (exclude outermost col)
+        for row in range(vars['grid_y']):
+            for col in range(1, vars['grid_x']):
+                possible_bottle_positions.append([row + 0.5, col])
+        for bottle in possible_bottle_positions:
+            t.goto(
+                (((50 * bottle[1]) - (vars['grid_x'] * 25)) * screensSizeMultiplier),
+                (((50 * bottle[0]) - (vars['grid_y'] * 25)) * screensSizeMultiplier)
+            )
+            t.pencolor(highlightcolorWaterBottle)
+            t.dot(13 * screensSizeMultiplier)
+
+    for bottle in bottlePlaces:
+        t.goto(
+            (((50 * bottle[1]) - (vars['grid_x'] * 25)) * screensSizeMultiplier),
+            (((50 * bottle[0]) - (vars['grid_y'] * 25)) * screensSizeMultiplier)
+        )
+        t.pencolor(colorWaterBottle)
+        t.dot(13 * screensSizeMultiplier)
+        t.pencolor("black")
+        t.forward(-6 * screensSizeMultiplier)
+        t.write("W", align="center", font=("Arial", int(7.5 * screensSizeMultiplier), "bold"))
+
+
     t.setheading(0)  # Reset heading to face east
     
 
@@ -764,26 +794,29 @@ def on_close_turtle(a=None):
 
 
 pencolor="black"
-highlightcolor="#99DAFF"
+highlightcolor="#FFD4A9"
 highlightcolorGate="#E7FD67"
 highlightcolorStart="#AEFFB3"
 highlightcolorDot="#FF8E8E"
+highlightcolorWaterBottle="#99DAFF"
+colorWaterBottle="#0097EC"
 t.Screen().bgcolor('white')  
 colorPallete=[[0.058, 0.275, 0.117], [0.683, 0.683, 0.55], [0.092, 0.308, 0.525], [0.217, 0.742, 0.008], [0.2, 0.567, 0.75], [0.267, 0.517, 0.142], [0.6, 0.2, 0.508], [0.717, 0.45, 0.283], [0.133, 0.05, 0.567], [0.35, 0.717, 0.5], [0.292, 0.475, 0.742], [0.317, 0.117, 0.325], [0.15, 0.6, 0.192], [0.008, 0.108, 0.55], [0.483, 0.383, 0.75], [0.3, 0.383, 0.342], [0.683, 0.533, 0.308], [0.467, 0.158, 0.3], [0.475, 0.025, 0.517], [0.533, 0.242, 0.592], [0.467, 0.133, 0.617], [0.0, 0.617, 0.133], [0.133, 0.617, 0.4], [0.308, 0.233, 0.45], [0.592, 0.475, 0.267], [0.392, 0.417, 0.367], [0.55, 0.608, 0.642], [0.233, 0.592, 0.275], [0.275, 0.458, 0.342], [0.208, 0.258, 0.2], [0.217, 0.65, 0.242], [0.233, 0.108, 0.008], [0.275, 0.208, 0.333], [0.4, 0.167, 0.383], [0.492, 0.583, 0.517], [0.65, 0.05, 0.575], [0.275, 0.05, 0.058], [0.692, 0.717, 0.008], [0.617, 0.383, 0.617], [0.542, 0.742, 0.167], [0.525, 0.067, 0.4], [0.2, 0.25, 0.233], [0.4, 0.325, 0.358], [0.642, 0.717, 0.4], [0.392, 0.183, 0.233], [0.425, 0.075, 0.583], [0.25, 0.583, 0.283], [0.575, 0.25, 0.467], [0.467, 0.292, 0.008], [0.05, 0.6, 0.042], [0.258, 0.142, 0.092], [0.667, 0.367, 0.508], [0.233, 0.442, 0.05], [0.35, 0.15, 0.317], [0.65, 0.608, 0.317], [0.175, 0.717, 0.625], [0.625, 0.35, 0.408], [0.475, 0.208, 0.592], [0.25, 0.442, 0.25], [0.425, 0.3, 0.317], [0.592, 0.242, 0.217], [0.692, 0.717, 0.692], [0.383, 0.25, 0.508], [0.25, 0.4, 0.358], [0.617, 0.192, 0.142], [0.583, 0.225, 0.192], [0.5, 0.742, 0.0], [0.125, 0.208, 0.075], [0.267, 0.033, 0.142], [0.283, 0.567, 0.717], [0.075, 0.617, 0.408], [0.583, 0.642, 0.625], [0.325, 0.592, 0.342], [0.55, 0.742, 0.683], [0.25, 0.7, 0.458], [0.208, 0.075, 0.642], [0.283, 0.608, 0.525], [0.242, 0.217, 0.433], [0.3, 0.733, 0.033], [0.167, 0.75, 0.133], [0.75, 0.35, 0.225], [0.542, 0.4, 0.508], [0.558, 0.15, 0.608], [0.267, 0.167, 0.4], [0.033, 0.133, 0.467], [0.717, 0.683, 0.1], [0.283, 0.742, 0.55], [0.375, 0.417, 0.667], [0.017, 0.658, 0.233], [0.333, 0.075, 0.075], [0.35, 0.292, 0.408], [0.658, 0.642, 0.4], [0.492, 0.183, 0.633], [0.267, 0.117, 0.508], [0.425, 0.117, 0.292], [0.342, 0.15, 0.058], [0.317, 0.417, 0.25], [0.133, 0.658, 0.75], [0.683, 0.55, 0.583], [0.567, 0.567, 0.617], [0.65, 0.083, 0.708], [0.483, 0.533, 0.158], [0.658, 0.325, 0.258], [0.092, 0.533, 0.283], [0.025, 0.725, 0.717], [0.033, 0.442, 0.358], [0.058, 0.625, 0.517], [0.325, 0.742, 0.3], [0.233, 0.458, 0.717], [0.708, 0.2, 0.083], [0.292, 0.517, 0.275], [0.625, 0.192, 0.242], [0.575, 0.217, 0.267], [0.508, 0.725, 0.25], [0.708, 0.108, 0.175], [0.158, 0.542, 0.142], [0.55, 0.25, 0.542], [0.008, 0.267, 0.542], [0.067, 0.675, 0.2], [0.05, 0.492, 0.475], [0.333, 0.517, 0.225], [0.283, 0.492, 0.608], [0.567, 0.558, 0.733], [0.125, 0.567, 0.75], [0.633, 0.008, 0.492], [0.625, 0.142, 0.2], [0.525, 0.742, 0.133], [0.508, 0.567, 0.133], [0.35, 0.408, 0.6], [0.358, 0.15, 0.192], [0.492, 0.483, 0.167], [0.533, 0.35, 0.017], [0.283, 0.408, 0.042], [0.267, 0.65, 0.333], [0.108, 0.333, 0.725], [0.75, 0.008, 0.358], [0.158, 0.025, 0.467], [0.375, 0.725, 0.108], [0.517, 0.067, 0.7], [0.417, 0.442, 0.083], [0.467, 0.383, 0.392], [0.475, 0.733, 0.058], [0.117, 0.292, 0.542], [0.575, 0.3, 0.617], [0.458, 0.5, 0.042], [0.108, 0.15, 0.15], [0.042, 0.642, 0.258], [0.483, 0.358, 0.258], [0.717, 0.083, 0.3], [0.008, 0.55, 0.075], [0.0, 0.108, 0.175], [0.075, 0.642, 0.067], [0.433, 0.075, 0.608], [0.25, 0.358, 0.275], [0.125, 0.092, 0.317], [0.575, 0.733, 0.067], [0.142, 0.442, 0.458], [0.175, 0.4, 0.367], [0.3, 0.283, 0.208], [0.617, 0.558, 0.242], [0.625, 0.675, 0.542], [0.467, 0.4, 0.342], [0.733, 0.667, 0.425], [0.158, 0.275, 0.508], [0.1, 0.725, 0.408], [0.583, 0.067, 0.15], [0.175, 0.092, 0.733], [0.483, 0.667, 0.358], [0.292, 0.5, 0.583], [0.425, 0.633, 0.058], [0.417, 0.075, 0.233], [0.15, 0.258, 0.025], [0.75, 0.542, 0.192], [0.558, 0.2, 0.058], [0.242, 0.617, 0.683], [0.75, 0.658, 0.183], [0.242, 0.533, 0.192], [0.525, 0.642, 0.367], [0.608, 0.158, 0.333], [0.092, 0.083, 0.217], [0.325, 0.65, 0.592], [0.033, 0.333, 0.017], [0.658, 0.208, 0.283], [0.133, 0.675, 0.4], [0.425, 0.142, 0.225], [0.725, 0.567, 0.283], [0.675, 0.392, 0.258], [0.7, 0.25, 0.508], [0.375, 0.7, 0.125], [0.142, 0.625, 0.642], [0.617, 0.267, 0.208], [0.675, 0.075, 0.525], [0.7, 0.067, 0.25], [0.292, 0.125, 0.392], [0.283, 0.6, 0.425], [0.0, 0.408, 0.175], [0.217, 0.317, 0.475], [0.067, 0.7, 0.058], [0.275, 0.158, 0.042], [0.375, 0.575, 0.067]]
 t.pencolor(pencolor)
 barrierColor="#AE5800"
 barrierList=[]
 gatezones=[]
+bottlePlaces=[]
 highlightOn = False
 gateSelect = False
+bottleSelect = False
 displayLayoutOn = False
 enddotx = 0
 enddoty = 0
 xvar = 1
 yvar = 0
-
 def toggleHighlight():
-    global highlightOn, displayLayoutOn, gateSelect
+    global highlightOn, displayLayoutOn, gateSelect, bottleSelect
     if highlightOn == True:
         highlightOn = False
         barrierbutton.config(highlightbackground='black', highlightthickness=0)
@@ -793,6 +826,8 @@ def toggleHighlight():
         gatebutton.config(highlightbackground='black', highlightthickness=0)
         gateSelect = False
         displayLayoutOn = False
+        bottleSelect = False
+        bottlebutton.config(highlightbackground='black', highlightthickness=0)
         screenshotbutton.config(highlightbackground='black', highlightthickness=0)
     tupdate()
 
@@ -802,28 +837,46 @@ root.protocol("WM_DELETE_WINDOW", on_close_turtle)
 root.createcommand("::tk::mac::Quit", on_close_turtle)
 movebutton = tk.Button(canvas.master, text ="▶", command = robotmove_func, width=1, height=1, font=('TkDefaultFont', 20),bg="white", fg="black")
 movebutton_label = tk.Label(canvas.master, text="Animate", font=('TkDefaultFont', 10), bg="white", fg="black")
-movebutton_label.place(x=3, y=40)
-movebutton.place(x=0,y=0)
 
 gatebutton = tk.Button(canvas.master, text ="🟩", command = lambda: toggleGateSelect(), width=1, height=1, font=('TkDefaultFont', 20),bg="white", fg="black")
 gatebutton_label = tk.Label(canvas.master, text="Set\nGates", font=('TkDefaultFont', 10), bg="white", fg="black")
-gatebutton.place(x=0,y=200)
-gatebutton_label.place(x=3, y=240)
+
+bottlebutton = tk.Button(canvas.master, text ="🪣", command = lambda: toggleBottleSelect(), width=1, height=1, font=('TkDefaultFont', 20),bg="white", fg="black")
+bottlebutton_label = tk.Label(canvas.master, text="Set\nBottles", font=('TkDefaultFont', 10), bg="white", fg="black")
+
+
+def toggleBottleSelect():
+    global bottleSelect, gateSelect, highlightOn, displayLayoutOn, gatezones
+    if bottleSelect:
+        bottleSelect = False
+        bottlebutton.config(highlightbackground='black', highlightthickness=0)
+    else:
+        bottleSelect = True
+        gateSelect = False
+        highlightOn = False
+        displayLayoutOn = False
+        bottlebutton.config(highlightbackground='red', highlightthickness=3)
+        gatebutton.config(highlightbackground='black', highlightthickness=0)
+        barrierbutton.config(highlightbackground='black', highlightthickness=0)
+        screenshotbutton.config(highlightbackground='black', highlightthickness=0)
+        gatezones = []
+    tupdate()
+
 
 def toggleGateSelect():
-    global gateSelect, gatezones, highlightOn, displayLayoutOn
+    global gateSelect, gatezones, highlightOn, displayLayoutOn, bottleSelect
     if gateSelect == True:
         gateSelect = False
-        # Screenshot button border color customization
         gatebutton.config(highlightbackground='black', highlightthickness=0)
     else:
-        # Screenshot button border color customization
         gatebutton.config(highlightbackground='red', highlightthickness=3)
         barrierbutton.config(highlightbackground='black', highlightthickness=0)
+        screenshotbutton.config(highlightbackground='black', highlightthickness=0)
         gateSelect = True
         highlightOn = False
         displayLayoutOn = False
-        screenshotbutton.config(highlightbackground='black', highlightthickness=0)
+        bottleSelect = False
+        bottlebutton.config(highlightbackground='black', highlightthickness=0)
         gatezones = []
     tupdate()
 
@@ -838,13 +891,15 @@ barrier = []
 
 
 def display_layout():
-    global vars, displayLayoutOn,displayLayoutOn, highlightOn, gateSelect
+    global vars, displayLayoutOn, highlightOn, gateSelect, bottleSelect
     if displayLayoutOn == False:
         displayLayoutOn = True
         gateSelect = False
         highlightOn = False
+        bottleSelect = False
         gatebutton.config(highlightbackground='black', highlightthickness=0)
         barrierbutton.config(highlightbackground='black', highlightthickness=0)
+        bottlebutton.config(highlightbackground='black', highlightthickness=0)
         screenshotbutton.config(highlightbackground='red', highlightthickness=3)
     else:
         displayLayoutOn = False
@@ -917,6 +972,35 @@ def on_canvas_click(event):
                 gatezones.append([turtlerow+1,turtlecol])
                 tupdate()
 
+    elif bottleSelect == True:
+        # Place a bottle dot at the center of each inner edge (not outer edges)
+        turtlerow = (((turtlerow) + vars['grid_y']) / 2)
+        turtlecol = (((turtlecol) + vars['grid_x']) / 2)
+        edge_positions = []
+        # Top inner edge centers (exclude outermost row)
+        for col in range(vars['grid_x']):
+            for row in range(1, vars['grid_y']):
+                edge_positions.append({'row': row, 'col': col + 0.5, 'type': 'top'})
+        # Left inner edge centers (exclude outermost col)
+        for row in range(vars['grid_y']):
+            for col in range(1, vars['grid_x']):
+                edge_positions.append({'row': row + 0.5, 'col': col, 'type': 'left'})
+        # Find the closest inner edge center to the click
+        min_dist = float('inf')
+        closest = None
+        for pos in edge_positions:
+            dist = (turtlerow - pos['row']) ** 2 + (turtlecol - pos['col']) ** 2
+            if dist < min_dist:
+                min_dist = dist
+                closest = pos
+        if closest and min_dist < 0.3:  # Only allow if click is close enough to an edge center
+            bottle_dot = [closest['row'], closest['col']]
+            if bottle_dot in bottlePlaces:
+                bottlePlaces.remove(bottle_dot)
+            else:
+                bottlePlaces.append(bottle_dot)
+            tupdate() # update screen
+
 # Add near bottom of file, before mainloop
 canvas.bind('<Button-1>', on_canvas_click)
 
@@ -946,8 +1030,6 @@ def clear_all():
 
 #clearbutton = tk.Button(canvas.master, text ="🗑", command = clear_all, width=1, height=1, font=('TkDefaultFont', 20), bg="white", fg="black")
 #clearbutton_label = tk.Label(canvas.master, text="Clear\nAll", font=('TkDefaultFont', 10), bg="white", fg="black")
-#clearbutton.place(x=0,y=300)
-#clearbutton_label.place(x=3, y=340)
 #clearbutton.bind('<space>', disable_space)
 def on_resize(event):
     tupdate()
@@ -981,6 +1063,7 @@ def save_layout():
         'end': {'x': enddotx, 'y': enddoty},
         'barriers': barrierList,
         'gates': gatezones,
+        'bottles': bottlePlaces,
         'instructions': text_box.get('1.0', 'end').strip(), # Add instructions from text box
         'targetTime': int(trackTime)
     }
@@ -996,7 +1079,7 @@ def save_layout():
             json.dump(layout_data, f)
 
 def load_layout_subfunc(filename):
-    global xvar, yvar, enddotx, enddoty, barrierList, gatezones, trackTime
+    global xvar, yvar, enddotx, enddoty, barrierList, gatezones, bottlePlaces, trackTime
     
     if filename:
         try:
@@ -1010,6 +1093,10 @@ def load_layout_subfunc(filename):
                 yvar = layout_data['start']['y']
                 enddotx = layout_data['end']['x']
                 enddoty = layout_data['end']['y']
+                try:
+                    bottlePlaces = layout_data['bottles']
+                except:
+                    bottlePlaces = []
                 barrierList = layout_data['barriers']
                 gatezones = layout_data['gates']
                 try:
@@ -1089,14 +1176,10 @@ if sys.platform == 'darwin':
 
 savebutton = tk.Button(canvas.master, text ="💾", command = save_layout, width=1, height=1, font=('TkDefaultFont', 20),bg="white", fg="black")
 savebutton_label = tk.Label(canvas.master, text="Save\nCourse", font=('TkDefaultFont', 10), bg="white", fg="black")
-savebutton.place(x=0,y=400)
-savebutton_label.place(x=3, y=440)
 savebutton.bind('<space>', disable_space)
 
 loadbutton = tk.Button(canvas.master, text ="📂", command = load_layout, width=1, height=1, font=('TkDefaultFont', 20),bg="white", fg="black")
 loadbutton_label = tk.Label(canvas.master, text="Load\nCourse", font=('TkDefaultFont', 10), bg="white", fg="black")
-loadbutton.place(x=0,y=500)
-loadbutton_label.place(x=3, y=540)
 loadbutton.bind('<space>', disable_space)
 
 screenshotbutton = tk.Button(canvas.master, text ="📷", command = display_layout, width=1, height=1, font=('TkDefaultFont', 20),bg="white", fg="black")
@@ -1137,6 +1220,12 @@ buttonNumber += 1
 gatebutton.place(x=0,y=distanceBetweenButtons*buttonNumber)
 gatebutton_label.place(x=3,y=(distanceBetweenButtons*buttonNumber)+distanceBetweenButtonAndLabel)
 buttonNumber += 1
+
+# Set Bottles button
+bottlebutton.place(x=0,y=distanceBetweenButtons*buttonNumber)
+bottlebutton_label.place(x=3,y=(distanceBetweenButtons*buttonNumber)+distanceBetweenButtonAndLabel)
+buttonNumber += 1
+
 
 ## Clear All button
 #clearbutton.place(x=0,y=distanceBetweenButtons*buttonNumber)
