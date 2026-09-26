@@ -275,11 +275,10 @@ def open_about():
         fram2.pack(side='top')
 
         def _quitprefs():
-            about_window.quit()
+            global about_is_open
+            about_is_open = False
             about_window.destroy()
         about_window.protocol("WM_DELETE_WINDOW", _quitprefs)
-        about_window.mainloop()
-        about_is_open = False
     else:
         about_window.focus_force()
 
@@ -524,7 +523,7 @@ def open_preferences():
         preferences_window = tk.Toplevel(root)
         preferences_window.title("Preferences")
         preferences_window.minsize(600,420)
-        preferences_window.geometry('780x580')
+        preferences_window.geometry('780x600')
         preferences_window.resizable(True, True) # make False, False to enable pop-out window on macOS
 
         preferences_scrollbar = ttk.Scrollbar(preferences_window)
@@ -656,11 +655,10 @@ def open_preferences():
         
         preferences_window.bind("<MouseWheel>", on_mousewheel)
         def _quitprefs():
-            preferences_window.quit()
+            global preferences_is_open
+            preferences_is_open = False
             preferences_window.destroy()
         preferences_window.protocol("WM_DELETE_WINDOW", _quitprefs)
-        preferences_window.mainloop()
-        preferences_is_open = False
     else:
         preferences_window.focus_force()
 
