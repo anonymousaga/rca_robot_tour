@@ -249,6 +249,7 @@ def open_about():
         img = PhotoImage(file=(os.path.join(__location__,"icon.png")))
         img = img.subsample(13) #mechanically, here it is adjusted to 32 instead of 320
         panel = tk.Label(about_window, image = img)
+        panel.image = img # keep a reference!
         panel.pack(side='top', pady=3)
         label2=BoldLabel(about_window, text="Robot Coaching Assistant")
 
