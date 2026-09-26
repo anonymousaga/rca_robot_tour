@@ -5,7 +5,7 @@ description = "Robot Coaching Assistant for Science Olympiad"
 
 [tool.cxfreeze]
 executables = [
-    {script = "rca.py", base = "gui", icon="icon", output_name='Robot Coaching Assistant', shortcut_name="Robot Coaching Assistant", shortcut_dir="ProgramMenuFolder"}
+    {script = "rca.py", base = "gui", icon="icon", target_name='Robot Coaching Assistant', shortcut_name="Robot Coaching Assistant", shortcut_dir="ProgramMenuFolder"}
 ]
 
 [tool.cxfreeze.build_exe]
