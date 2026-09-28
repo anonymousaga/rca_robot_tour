@@ -3,20 +3,72 @@ name: Publish packages on release
 on:
   release:
     types: [published]
-#  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
+    update_version:
+        name: Update version from release tag
+        runs-on: ubuntu-latest
+        steps:
+          - name: Check out main
+            uses: actions/checkout@main
+            with:
+              ref: main
+
+          - name: Set project version
+            env:
+              RELEASE_TAG: ${{github.event.release.tag_name}}
+            run: |
+              if [[ ! "$RELEASE_TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+                echo "Tag must use the format MAJOR.MINOR.PATCH, optionally with a prerelease suffix."
+                exit 1
+              fi
+
+              python "$RELEASE_TAG" <<'PY'
+              from pathlib import Path
+              import re
+              import sys
+
+              path = Path("pyproject.toml")
+              content = path.read_text()
+              updated, replacements = re.subn(
+                  r'(?m)^version = "[^"]+"$',
+                  f'version = "{sys.argv[1]}"',
+                  content,
+                  count=1,
+              )
+              if replacements != 1:
+                  raise SystemExit("Could not find the project version in pyproject.toml")
+              path.write_text(updated)
+              PY
+
+          - name: Commit version update
+            env:
+              RELEASE_TAG: ${{ github.event.release.tag_name }}
+            run: |
+              git config user.name "github-actions[bot]"
+              git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+              git add pyproject.toml
+              if git diff --cached --quiet; then
+                echo "pyproject.toml already has the release version."
+              else
+                git commit -m "Bump version to ${RELEASE_TAG}"
+                git push origin HEAD:main
+              fi
+
     build_win64:
         name: Build win64 binary
+        needs: update_version
         runs-on: windows-latest
         defaults:
           run:
             shell: bash
         steps:
           - uses: actions/checkout@main
+            with:
+              ref: main
     
           - uses: actions/setup-python@main
             with:
@@ -39,12 +91,15 @@ jobs:
               GITHUB_TOKEN: ${{ github.TOKEN }}
     build_winarm64:
         name: Build win arm64 binary
+        needs: update_version
         runs-on: windows-11-arm
         defaults:
           run:
             shell: bash
         steps:
           - uses: actions/checkout@main
+            with:
+              ref: main
     
           - uses: actions/setup-python@main
             with:
@@ -67,12 +122,15 @@ jobs:
               GITHUB_TOKEN: ${{ github.TOKEN }}
     build_macarm64:
         name: Build mac arm64 binary
+        needs: update_version
         runs-on: macos-latest
         defaults:
           run:
             shell: bash
         steps:
           - uses: actions/checkout@main
+            with:
+              ref: main
     
           - uses: actions/setup-python@main
             with:
@@ -95,12 +153,15 @@ jobs:
                   GITHUB_TOKEN: ${{ github.TOKEN }}
     build_linux64:
         name: Build linux binary x64
+        needs: update_version
         runs-on: ubuntu-latest
         defaults:
           run:
             shell: bash
         steps:
           - uses: actions/checkout@main
+            with:
+              ref: main
     
           - uses: actions/setup-python@main
             with:
@@ -118,11 +179,12 @@ jobs:
           - name: Upload to release
             run: |
                 mv dist/*.AppImage dist/RCAInstaller_linux_x64.AppImage
-                gh release upload ${{github.event.release.tag_name}} dist/*.AppImage
+                gh release upload "${{ github.event.release.tag_name }}" dist/*.AppImage
             env:
               GITHUB_TOKEN: ${{ github.TOKEN }}
     build_linuxarm64:
         name: Build linux binary arm64
+        needs: update_version
         runs-on: ubuntu-24.04-arm
         defaults:
           run:
@@ -130,6 +192,8 @@ jobs:
         steps:
           - uses: actions/checkout@main
     
+            with:
+              ref: main
           - uses: actions/setup-python@main
             with:
               cache: 'pip'
@@ -146,7 +210,7 @@ jobs:
           - name: Upload to release
             run: |
                 mv dist/*.AppImage dist/RCAInstaller_linux_arm64.AppImage
-                gh release upload ${{github.event.release.tag_name}} dist/*.AppImage
+                gh release upload "${{ github.event.release.tag_name }}" dist/*.AppImage
             env:
               GITHUB_TOKEN: ${{ github.TOKEN }}
 
@@ -169,7 +233,7 @@ jobs:
               GH_TOKEN: ${{ github.TOKEN }}
 
           - name: Check out Homebrew tap
-            uses: actions/checkout@v7
+            uses: actions/checkout@main
             with:
               repository: anonymousaga/homebrew-tap
               token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
@@ -180,7 +244,7 @@ jobs:
             env:
               RELEASE_TAG: ${{ github.event.release.tag_name }}
             run: |
-              version="${RELEASE_TAG#v}"
+              version="${RELEASE_TAG}"
               sha256="$(shasum -a 256 "$RUNNER_TEMP/RCAInstaller_mac_arm64.dmg" | cut -d ' ' -f 1)"
               mkdir -p Casks
               cat > Casks/robot-coaching-assistant.rb <<EOF
@@ -211,5 +275,5 @@ jobs:
                 echo "Cask is already up to date."
                 exit 0
               fi
-              git commit -m "Update Robot Coaching Assistant to ${RELEASE_TAG#v}"
+              git commit -m "Update Robot Coaching Assistant to ${RELEASE_TAG}"
               git push origin HEAD:main
