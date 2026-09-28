@@ -44,3 +44,15 @@ A tool to simulate a robot's path for robot tour in Science Olympiad. \
 
 ### Building From Source
 See [building from source](docs/BUILDING_SRC.md)
+
+### Installing on macOS
+
+Apple Silicon users can install the latest release with Homebrew:
+
+```sh
+brew install --cask anonymousaga/tap/robot-coaching-assistant
+```
+
+The release workflow updates the cask automatically. It requires the
+`HOMEBREW_TAP_TOKEN` GitHub Actions secret with write access to
+`anonymousaga/homebrew-tap`.
