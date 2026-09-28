@@ -3,7 +3,6 @@ name: Publish packages on release
 on:
   release:
     types: [published]
-#  workflow_dispatch:
 
 permissions:
   contents: write
@@ -17,6 +16,8 @@ jobs:
             shell: bash
         steps:
           - uses: actions/checkout@main
+            with:
+              ref: main
     
           - uses: actions/setup-python@main
             with:
@@ -45,6 +46,8 @@ jobs:
             shell: bash
         steps:
           - uses: actions/checkout@main
+            with:
+              ref: main
     
           - uses: actions/setup-python@main
             with:
@@ -73,6 +76,8 @@ jobs:
             shell: bash
         steps:
           - uses: actions/checkout@main
+            with:
+              ref: main
     
           - uses: actions/setup-python@main
             with:
@@ -101,6 +106,8 @@ jobs:
             shell: bash
         steps:
           - uses: actions/checkout@main
+            with:
+              ref: main
     
           - uses: actions/setup-python@main
             with:
@@ -118,7 +125,7 @@ jobs:
           - name: Upload to release
             run: |
                 mv dist/*.AppImage dist/RCAInstaller_linux_x64.AppImage
-                gh release upload ${{github.event.release.tag_name}} dist/*.AppImage
+                gh release upload "${{ github.event.release.tag_name }}" dist/*.AppImage
             env:
               GITHUB_TOKEN: ${{ github.TOKEN }}
     build_linuxarm64:
@@ -130,6 +137,8 @@ jobs:
         steps:
           - uses: actions/checkout@main
     
+            with:
+              ref: main
           - uses: actions/setup-python@main
             with:
               cache: 'pip'
@@ -146,7 +155,7 @@ jobs:
           - name: Upload to release
             run: |
                 mv dist/*.AppImage dist/RCAInstaller_linux_arm64.AppImage
-                gh release upload ${{github.event.release.tag_name}} dist/*.AppImage
+                gh release upload "${{ github.event.release.tag_name }}" dist/*.AppImage
             env:
               GITHUB_TOKEN: ${{ github.TOKEN }}
 
@@ -169,7 +178,7 @@ jobs:
               GH_TOKEN: ${{ github.TOKEN }}
 
           - name: Check out Homebrew tap
-            uses: actions/checkout@v7
+            uses: actions/checkout@main
             with:
               repository: anonymousaga/homebrew-tap
               token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
